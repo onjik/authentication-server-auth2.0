@@ -1,0 +1,19 @@
+server:
+  servlet:
+    session:
+      timeout: 10m
+spring:
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session:auth
+  redis:
+    host: localhost
+    port: 6379
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/auth_2
+    username: local_dev
+    password: local_dev
+  jpa:
+    show-sql: true
