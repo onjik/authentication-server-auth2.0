@@ -6,7 +6,16 @@
 
 자체 도메인에 통합 로그인 서비스를 제공하기 위해 만들어졌습니다.
 
+## Database Design
 
+### 1. Postgresql
+
+Database Diagram
+![DB_Diagram](document/db_diagram.png)
+Database Erd
+![DB_ERD](document/db_erd.png)
+
+### 2. MongoDB
 
 ## Details
 1. [왜 WebFlux 를 채택하지 않았나? (Why didn't I adopt WebFlux?)](document/why_didn't_i_adopt_webflux.md)
