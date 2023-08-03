@@ -1,0 +1,25 @@
+server:
+  port: 9000
+  servlet:
+    session:
+      timeout: 10m
+logging:
+  level:
+    org.springframework.security: trace
+spring:
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session:auth
+      repository-type: indexed
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/auth_2
+    username: local_dev
+    password: local_dev
+  jpa:
+    show-sql: true
