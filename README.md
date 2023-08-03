@@ -6,6 +6,11 @@
 
 자체 도메인에 통합 로그인 서비스를 제공하기 위해 만들어졌습니다.
 
+## Server Architecture
+Continuously updating (unfinished)
+
+![Server Architecture](./document/server-design.drawio.png)
+
 ## Database Design
 
 ### 1. Postgresql
