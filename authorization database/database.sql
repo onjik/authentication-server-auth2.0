@@ -7,7 +7,7 @@
 
 CREATE TABLE authorization_grant_type
 (
-    id   bigint PRIMARY KEY,
+    id   bigserial PRIMARY KEY,
     name varchar(255) NOT NULL,
     CONSTRAINT unique_grant_type_name UNIQUE (name)
 );
