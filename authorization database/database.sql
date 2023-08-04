@@ -32,8 +32,8 @@ CREATE TABLE role
 CREATE TABLE scope
 (
     id           bigserial PRIMARY KEY,
-    uri_endpoint text,
-    name         varchar(255),
+    uri_endpoint text NOT NULL,
+    name         varchar(255) NOT NULL,
     CONSTRAINT unique_scope_name UNIQUE (name)
 );
 
