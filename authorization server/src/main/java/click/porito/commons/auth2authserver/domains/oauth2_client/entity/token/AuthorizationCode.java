@@ -14,11 +14,11 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthorizationCode extends CommonToken {
-    public AuthorizationCode(Map<String, String> metadata, String value, Duration expiresAfter) {
+    public AuthorizationCode(Map<String, Object> metadata, String value, Duration expiresAfter) {
         super(metadata, value, expiresAfter);
     }
 
-    public AuthorizationCode(Map<String, String> metadata, String value) {
+    public AuthorizationCode(Map<String, Object> metadata, String value) {
         super(metadata, value);
     }
 }

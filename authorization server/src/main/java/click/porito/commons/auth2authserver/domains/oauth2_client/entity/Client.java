@@ -42,11 +42,11 @@ public class Client {
     private Instant clientSecretExpiresAt;
 
     @Type(JsonType.class)
-    @Column(name = "client_settings", nullable = false)
+    @Column(name = "client_settings", nullable = false, columnDefinition = "json")
     private Map<String,Object> clientSettings;
 
     @Type(JsonType.class)
-    @Column(name = "token_settings", nullable = false)
+    @Column(name = "token_settings", nullable = false, columnDefinition = "json")
     private Map<String,Object> tokenSettings;
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY,

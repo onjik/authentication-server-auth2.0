@@ -26,7 +26,7 @@ public class AccessToken extends CommonToken {
     private Set<Scope> scopes;
 
     @Builder
-    public AccessToken(Map<String, String> metadata, String value, Duration expiresAfter, String tokenType, Set<Scope> scopes) {
+    public AccessToken(Map<String, Object> metadata, String value, Duration expiresAfter, String tokenType, Set<Scope> scopes) {
         super(metadata, value, expiresAfter);
         this.tokenType = tokenType;
         this.scopes = scopes;

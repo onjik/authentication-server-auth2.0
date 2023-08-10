@@ -13,11 +13,11 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshToken extends CommonToken {
 
-    public RefreshToken(Map<String, String> metadata, String value) {
+    public RefreshToken(Map<String, Object> metadata, String value) {
         super(metadata, value);
     }
 
-    public RefreshToken(Map<String, String> metadata, String value, Duration expiresAfter) {
+    public RefreshToken(Map<String, Object> metadata, String value, Duration expiresAfter) {
         super(metadata, value, expiresAfter);
     }
 }

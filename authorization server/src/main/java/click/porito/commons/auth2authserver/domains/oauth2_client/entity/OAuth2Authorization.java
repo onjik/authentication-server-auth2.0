@@ -38,7 +38,7 @@ public class OAuth2Authorization {
 
     //optional = true
     @Type(JsonType.class)
-    @Column(name = "attribute")
+    @Column(name = "attribute", columnDefinition = "json")
     private Map<String,String> attribute = new HashMap<>();
 
     @Column(name = "state", length = 500)

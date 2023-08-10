@@ -19,15 +19,15 @@ public class OidcIdToken extends CommonToken {
     private Long id;
 
     @Type(JsonType.class)
-    @Column(name = "claims" , nullable = false)
+    @Column(name = "claims" , nullable = false, columnDefinition = "json")
     private Map<String,String> claims;
 
-    public OidcIdToken(Map<String, String> metadata, String value, Duration expiresAfter, Map<String, String> claims) {
+    public OidcIdToken(Map<String, Object> metadata, String value, Duration expiresAfter, Map<String, String> claims) {
         super(metadata, value, expiresAfter);
         this.claims = claims;
     }
 
-    public OidcIdToken(Map<String, String> metadata, String value, Map<String, String> claims) {
+    public OidcIdToken(Map<String, Object> metadata, String value, Map<String, String> claims) {
         super(metadata, value);
         this.claims = claims;
     }
