@@ -1,9 +1,9 @@
-package click.porito.commons.auth2authserver.entity.constant;
+package click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity;
 
-import click.porito.commons.auth2authserver.ConstantEntity;
+import click.porito.commons.auth2authserver.global.ConstantEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -15,8 +15,8 @@ import org.springframework.util.Assert;
  */
 @ConstantEntity
 @Entity @Table(name = "authorization_grant_type")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = "name")
 public class OAuth2AuthorizationGrantType {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,32 +28,17 @@ public class OAuth2AuthorizationGrantType {
     private String name;
 
 
-    //과도한 객체 생성 비용을 방지하기 위해, 내부 필드에 임시 저장
-    @Transient
-    private AuthorizationGrantType grantType;
-
-    public OAuth2AuthorizationGrantType(@NonNull AuthorizationGrantType grantType) {
-        Assert.notNull(grantType, "grantType cannot be null");
-        this.grantType = grantType;
-        this.name = grantType.getValue();
+    public OAuth2AuthorizationGrantType(String name) {
+        Assert.hasText(name, "grantType cannot be null");
+        this.name = name;
     }
 
     public static OAuth2AuthorizationGrantType from(@NonNull AuthorizationGrantType grantType) {
-        return new OAuth2AuthorizationGrantType(grantType);
+        return new OAuth2AuthorizationGrantType(grantType.getValue());
     }
 
     public AuthorizationGrantType toAuthorizationGrantType() {
-        if (grantType == null) {
-            grantType = new AuthorizationGrantType(name);
-        }
-        return grantType;
+        return new AuthorizationGrantType(this.name);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

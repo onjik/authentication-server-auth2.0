@@ -1,9 +1,8 @@
-package click.porito.commons.auth2authserver.entity.constant;
+package click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity;
 
-import click.porito.commons.auth2authserver.ConstantEntity;
+import click.porito.commons.auth2authserver.global.ConstantEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -12,7 +11,6 @@ import org.springframework.util.Assert;
 @ConstantEntity
 @Entity @Table(name = "scope")
 @Getter
-@EqualsAndHashCode(of = "name")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Scope {
 
@@ -29,7 +27,13 @@ public class Scope {
             length = 255, nullable = false)
     private String name;
 
+    public String getScopePrefixedName() {
+        return SCOPE_PREFIX + name;
+    }
 
+    public void setUriEndpoint(String uriEndpoint) {
+        this.uriEndpoint = uriEndpoint;
+    }
 
     public Scope(@NonNull String uriEndpoint, @NonNull String name) {
         Assert.hasText(uriEndpoint, "uriEndpoint cannot be null");
@@ -38,9 +42,6 @@ public class Scope {
         this.name = name;
     }
 
-    public String getScopePrefixedName() {
-        return SCOPE_PREFIX + name;
-    }
 
 
 }

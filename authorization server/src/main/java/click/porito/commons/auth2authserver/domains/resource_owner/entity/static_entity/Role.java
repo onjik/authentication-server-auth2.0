@@ -1,19 +1,16 @@
-package click.porito.commons.auth2authserver.entity.constant;
+package click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity;
 
-import click.porito.commons.auth2authserver.ConstantEntity;
+import click.porito.commons.auth2authserver.global.ConstantEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
-import java.util.regex.Pattern;
-
 @ConstantEntity
 @Entity @Table(name = "role")
-@Getter @EqualsAndHashCode(of = "name")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Role {
     public static final short MAX_PRIORITY = Short.MAX_VALUE -1;
@@ -21,7 +18,6 @@ public class Role {
     public static final short LOWEST_ADMIN_PRIORITY = 20_000;
     public static final short DEFAULT_USER_PRIORITY = 0;
     public static final String ROLE_PREFIX = "ROLE_";
-    private static final Pattern ROLE_PREFIX_PATTERN = Pattern.compile("^ROLE_.+$");
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -41,6 +37,13 @@ public class Role {
         return ROLE_PREFIX + name.toUpperCase();
     }
 
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    public void setPriority(short priority) {
+        this.priority = priority;
+    }
 
     /**
      * recommend to use static factory method
@@ -49,9 +52,6 @@ public class Role {
         //validate name
         Assert.hasText(name, "name cannot be empty");
         name = name.toUpperCase();
-        if (ROLE_PREFIX_PATTERN.matcher(name).matches()) {
-            throw new IllegalArgumentException("name cannot be prefixed with 'ROLE_'");
-        }
         //validate priority
         if (priority < LOWEST_ADMIN_PRIORITY && isAdmin){
             throw new IllegalArgumentException("super user priority cannot be less than " + LOWEST_ADMIN_PRIORITY);
