@@ -1,6 +1,6 @@
 package click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity;
 
-import click.porito.commons.auth2authserver.global.ConstantEntity;
+import click.porito.commons.auth2authserver.global.util.ConstantEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

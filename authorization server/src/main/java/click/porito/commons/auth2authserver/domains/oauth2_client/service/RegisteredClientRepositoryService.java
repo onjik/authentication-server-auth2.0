@@ -1,13 +1,13 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.Client;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUri;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthenticationMethod;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.OAuth2AuthorizationGrantType;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.Scope;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthenticationMethodRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.GrantTypeRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.Client;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUri;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
+import click.porito.commons.auth2authserver.domains.oauth2_client.repository.GrantTypeRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
@@ -17,12 +17,12 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class RegisteredClientRepositoryService implements RegisteredClientRepository {
 
@@ -73,19 +73,23 @@ public class RegisteredClientRepositoryService implements RegisteredClientReposi
         3. Spring 에서 제공하는 캐싱 -> 서비스 부분이나, 정적 엔티티들을 미리 캐싱해두는 서비스를 이용
          */
         // relationship mapping
+        //redirect uri
         registeredClient.getRedirectUris().forEach(redirectUri -> {
             client.getRedirectUris().add(new RedirectUri(redirectUri,client));
         });
 
+        // scopes
         Set<Scope> scopes = scopeRepository.findByNameIn(registeredClient.getScopes());
         client.getScopes().addAll(scopes);
 
+        // authentication methods
         Set<String> methodValues = registeredClient.getClientAuthenticationMethods().stream()
                 .map(ClientAuthenticationMethod::getValue)
                 .collect(Collectors.toSet());
         Set<AuthenticationMethod> methods = authenticationMethodRepository.findByNameIn(methodValues);
         client.getAuthenticationMethods().addAll(methods);
 
+        // grant types
         Set<String> grantTypeValues = registeredClient.getAuthorizationGrantTypes().stream()
                 .map(AuthorizationGrantType::getValue)
                 .collect(Collectors.toSet());
