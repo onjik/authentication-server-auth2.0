@@ -112,7 +112,7 @@ CREATE TABLE access_token
     metadata   json      DEFAULT NULL,
     value      text         NOT NULL,
     issued_at  timestamp DEFAULT NOW(),
-    expired_at timestamp    NOT NULL
+    expires_at timestamp    NOT NULL
 );
 
 
@@ -123,7 +123,7 @@ CREATE TABLE refresh_token
     metadata   json      DEFAULT NULL,
     value      text NOT NULL,
     issued_at  timestamp DEFAULT NOW(),
-    expired_at timestamp DEFAULT NULL
+    expires_at timestamp DEFAULT NULL
 );
 
 
@@ -133,7 +133,7 @@ CREATE TABLE authorization_code
     metadata   json      DEFAULT NULL,
     value      text NOT NULL,
     issued_at  timestamp DEFAULT NOW(),
-    expired_at timestamp DEFAULT NULL
+    expires_at timestamp DEFAULT NULL
 );
 
 
@@ -144,7 +144,7 @@ CREATE TABLE oidc_id_token
     metadata   json      DEFAULT NULL,
     value      text NOT NULL,
     issued_at  timestamp DEFAULT NOW(),
-    expired_at timestamp DEFAULT NULL
+    expires_at timestamp DEFAULT NULL
 );
 
 CREATE TABLE oauth2_authorization
