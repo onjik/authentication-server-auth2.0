@@ -40,7 +40,7 @@ public class RegisteredClientRepositoryService implements RegisteredClientReposi
     @Nullable
     @Override
     public RegisteredClient findById(String id) {
-        Client client = clientRepository.findById(Long.valueOf(id)).orElse(null);
+        Client client = clientRepository.findById(id).orElse(null);
         if (client == null) return null;
         return toDto(client);
     }

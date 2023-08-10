@@ -51,7 +51,7 @@ public class Client {
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY,
         cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RedirectUri> redirectUris = new ArrayList<>();
+    private Set<RedirectUri> redirectUris = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "client_scope",
