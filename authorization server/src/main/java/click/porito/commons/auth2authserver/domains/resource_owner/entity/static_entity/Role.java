@@ -5,10 +5,13 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 @ConstantEntity
+@Cacheable @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity @Table(name = "role")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

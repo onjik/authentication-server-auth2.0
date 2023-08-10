@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.util.Assert;
 
@@ -13,6 +15,7 @@ import org.springframework.util.Assert;
  * @see ClientAuthenticationMethod
  */
 @ConstantEntity
+@Cacheable @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 @Entity @Table(name = "authentication_method")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

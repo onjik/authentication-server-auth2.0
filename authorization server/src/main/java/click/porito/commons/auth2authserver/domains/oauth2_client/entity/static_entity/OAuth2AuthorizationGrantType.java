@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
@@ -14,6 +16,7 @@ import org.springframework.util.Assert;
  * @see org.springframework.security.oauth2.core.AuthorizationGrantType
  */
 @ConstantEntity
+@Cacheable @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 @Entity @Table(name = "authorization_grant_type")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

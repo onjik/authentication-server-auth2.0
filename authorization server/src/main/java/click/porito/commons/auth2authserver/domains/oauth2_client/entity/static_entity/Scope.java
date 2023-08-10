@@ -5,10 +5,13 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 @ConstantEntity
+@Cacheable @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity @Table(name = "scope")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,7 +23,7 @@ public class Scope {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "uri_endpoint")
+    @Column(name = "uri_endpoint", updatable = true)
     private String uriEndpoint;
 
     @Column(name = "name", unique = true,
