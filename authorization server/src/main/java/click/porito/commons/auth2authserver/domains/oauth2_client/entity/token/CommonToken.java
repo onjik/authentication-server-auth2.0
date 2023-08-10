@@ -23,10 +23,10 @@ public abstract class CommonToken {
     private Long id;
 
     @Type(JsonType.class)
-    @Column(name = "metadata", nullable = true)
-    private Map<String,String> metadata = new HashMap<>();
+    @Column(name = "metadata", nullable = true, columnDefinition = "json")
+    private Map<String,Object> metadata = new HashMap<>();
 
-    @Column(name = "value", nullable = false)
+    @Column(name = "token_value", nullable = false)
     protected String value;
 
     @CreationTimestamp
@@ -36,14 +36,14 @@ public abstract class CommonToken {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
-    protected CommonToken(Map<String, String> metadata, String value, Duration expiresAfter) {
+    protected CommonToken(Map<String, Object> metadata, String value, Duration expiresAfter) {
         this.metadata = metadata;
         this.value = value;
         this.issuedAt = Instant.now();
         this.expiresAt = issuedAt.plus(expiresAfter);
     }
 
-    protected CommonToken(Map<String, String> metadata, String value) {
+    protected CommonToken(Map<String, Object> metadata, String value) {
         this.metadata = metadata;
         this.value = value;
         this.issuedAt = Instant.now();

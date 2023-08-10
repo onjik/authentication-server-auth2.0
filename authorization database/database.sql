@@ -1,4 +1,3 @@
-
 /*
  static table
  초기에 값을 박아놓고 시작 하는 테이블
@@ -32,8 +31,8 @@ CREATE TABLE role
 CREATE TABLE scope
 (
     id           bigserial PRIMARY KEY,
-    uri_endpoint text NOT NULL,
-    name         varchar(255) NOT NULL,
+    uri_endpoint text NOT NULL ,
+    name         varchar(255) NOT NULL ,
     CONSTRAINT unique_scope_name UNIQUE (name)
 );
 
@@ -47,6 +46,7 @@ CREATE TABLE client
     id                       bigserial PRIMARY KEY,
     client_id                varchar(255) NOT NULL,
     client_id_issued_at      timestamp DEFAULT NOW(),
+    client_name              varchar(100) NOT NULL,
     client_secret            varchar(255) NOT NULL,
     client_secret_expires_at timestamp    NOT NULL,
     client_settings          json         NOT NULL,
@@ -87,11 +87,12 @@ CREATE TABLE credential
 
 CREATE TABLE password
 (
-    credential_id bigint PRIMARY KEY REFERENCES credential (id),
-    value         varchar(255) NOT NULL,
-    issued_at     timestamp DEFAULT NOW(),
-    expires_at    timestamp DEFAULT NULL
+    credential_id  bigint PRIMARY KEY REFERENCES credential (id),
+    password_value varchar(255) NOT NULL,
+    issued_at      timestamp DEFAULT NOW(),
+    expires_at     timestamp DEFAULT NULL
 );
+
 
 
 
@@ -107,45 +108,49 @@ CREATE TABLE authorization_consent
 
 CREATE TABLE access_token
 (
-    id         bigserial PRIMARY KEY,
-    token_type varchar(255) NOT NULL,
-    metadata   json      DEFAULT NULL,
-    value      text         NOT NULL,
-    issued_at  timestamp DEFAULT NOW(),
-    expires_at timestamp    NOT NULL
+    id          bigserial PRIMARY KEY,
+    token_type  varchar(255) NOT NULL,
+    metadata    json      DEFAULT NULL,
+    token_value text         NOT NULL,
+    issued_at   timestamp DEFAULT NOW(),
+    expires_at  timestamp    NOT NULL
 );
+
 
 
 
 CREATE TABLE refresh_token
 (
-    id         bigserial PRIMARY KEY,
-    metadata   json      DEFAULT NULL,
-    value      text NOT NULL,
-    issued_at  timestamp DEFAULT NOW(),
-    expires_at timestamp DEFAULT NULL
+    id          bigserial PRIMARY KEY,
+    metadata    json      DEFAULT NULL,
+    token_value text NOT NULL,
+    issued_at   timestamp DEFAULT NOW(),
+    expires_at  timestamp DEFAULT NULL
 );
+
 
 
 CREATE TABLE authorization_code
 (
-    id         bigserial PRIMARY KEY,
-    metadata   json      DEFAULT NULL,
-    value      text NOT NULL,
-    issued_at  timestamp DEFAULT NOW(),
-    expires_at timestamp DEFAULT NULL
+    id          bigserial PRIMARY KEY,
+    metadata    json      DEFAULT NULL,
+    token_value text NOT NULL,
+    issued_at   timestamp DEFAULT NOW(),
+    expires_at  timestamp DEFAULT NULL
 );
+
 
 
 CREATE TABLE oidc_id_token
 (
-    id         bigserial PRIMARY KEY,
-    claims     json NOT NULL,
-    metadata   json      DEFAULT NULL,
-    value      text NOT NULL,
-    issued_at  timestamp DEFAULT NOW(),
-    expires_at timestamp DEFAULT NULL
+    id          bigserial PRIMARY KEY,
+    claims      json NOT NULL,
+    metadata    json      DEFAULT NULL,
+    token_value text NOT NULL,
+    issued_at   timestamp DEFAULT NOW(),
+    expires_at  timestamp DEFAULT NULL
 );
+
 
 CREATE TABLE oauth2_authorization
 (
@@ -222,3 +227,14 @@ CREATE TABLE client_authorization_grant_type
     authorization_grant_type_id bigint REFERENCES authorization_grant_type (id),
     PRIMARY KEY (client_id, authorization_grant_type_id)
 );
+
+
+
+
+
+
+
+
+
+
+

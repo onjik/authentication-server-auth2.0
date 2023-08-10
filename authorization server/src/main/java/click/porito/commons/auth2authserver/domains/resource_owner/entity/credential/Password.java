@@ -17,7 +17,7 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Password extends Credential {
 
-    @Column(name = "value", nullable = false)
+    @Column(name = "password_value", nullable = false)
     private String value;
 
     @CreationTimestamp
