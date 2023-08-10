@@ -56,7 +56,7 @@ public class RegisteredClientRepositoryService implements RegisteredClientReposi
     private Client toEntity(RegisteredClient registeredClient){
         // column mapping
         Client client = Client.builder()
-                .id(Long.valueOf(registeredClient.getId()))
+                .id(registeredClient.getId())
                 .clientName(registeredClient.getClientName())
                 .clientId(registeredClient.getClientId())
                 .clientIdIssuedAt(registeredClient.getClientIdIssuedAt())

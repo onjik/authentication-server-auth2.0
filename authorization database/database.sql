@@ -43,7 +43,7 @@ CREATE TABLE scope
 
 CREATE TABLE client
 (
-    id                       bigserial PRIMARY KEY,
+    id                       varchar(255) PRIMARY KEY,
     client_id                varchar(255) NOT NULL,
     client_id_issued_at      timestamp DEFAULT NOW(),
     client_name              varchar(100) NOT NULL,

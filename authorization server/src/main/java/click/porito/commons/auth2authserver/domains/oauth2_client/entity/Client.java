@@ -20,9 +20,9 @@ import java.util.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Client {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     @Column(name = "id")
-    private Long id;
+    private String id;
 
     @Column(name = "client_id", unique = true, updatable = false,
         nullable = false, length = 255)
@@ -73,7 +73,7 @@ public class Client {
 
 
     @Builder
-    public Client(Long id, String clientId, Instant clientIdIssuedAt, String clientName, String clientSecret, Instant clientSecretExpiresAt, Map<String, Object> clientSettings, Map<String, Object> tokenSettings) {
+    public Client(String id, String clientId, Instant clientIdIssuedAt, String clientName, String clientSecret, Instant clientSecretExpiresAt, Map<String, Object> clientSettings, Map<String, Object> tokenSettings) {
         this.id = id;
         this.clientId = clientId;
         this.clientIdIssuedAt = clientIdIssuedAt;
