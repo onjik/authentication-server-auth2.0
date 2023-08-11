@@ -154,7 +154,7 @@ CREATE TABLE oidc_id_token
 
 CREATE TABLE oauth2_authorization
 (
-    id                          bigserial PRIMARY KEY,
+    id                          varchar(255) PRIMARY KEY,
     client_id                   varchar(255) NOT NULL REFERENCES client (id),
     resource_owner_id           varchar(50)  NOT NULL REFERENCES resource_owner (id),
     authorization_grant_type_id bigint       NOT NULL REFERENCES authorization_grant_type (id),
@@ -211,8 +211,8 @@ CREATE TABLE authorization_consent_scope
 
 CREATE TABLE authorization_scope
 (
-    scope_id         bigint REFERENCES scope (id),
-    oauth2_authorization_id bigint REFERENCES oauth2_authorization (id),
+    scope_id         varchar(255) REFERENCES scope (id),
+    oauth2_authorization_id varchar(255) REFERENCES oauth2_authorization (id),
     PRIMARY KEY (scope_id, oauth2_authorization_id)
 );
 

@@ -24,9 +24,9 @@ import java.util.Set;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class OAuth2AuthorizationEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     @Column(name = "id")
-    private Long id;
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
@@ -72,7 +72,8 @@ public class OAuth2AuthorizationEntity {
     private Set<ScopeEntity> scopeEntities = new HashSet<>();
 
     @Builder
-    public OAuth2AuthorizationEntity(ResourceOwnerEntity resourceOwnerEntity, AuthorizationGrantTypeEntity authorizationGrantTypeEntity, Map<String, String> attribute, String state, AccessTokenEntity accessToken, RefreshTokenEntity refreshToken, AuthorizationCode authorizationCode, OidcIdTokenEntity oidcIdToken, Set<ScopeEntity> scopeEntities) {
+    public OAuth2AuthorizationEntity(String id, ResourceOwnerEntity resourceOwnerEntity, AuthorizationGrantTypeEntity authorizationGrantTypeEntity, Map<String, String> attribute, String state, AccessTokenEntity accessToken, RefreshTokenEntity refreshToken, AuthorizationCode authorizationCode, OidcIdTokenEntity oidcIdToken, Set<ScopeEntity> scopeEntities) {
+        this.id = id;
         this.resourceOwnerEntity = resourceOwnerEntity;
         this.authorizationGrantTypeEntity = authorizationGrantTypeEntity;
         this.attribute = attribute;
