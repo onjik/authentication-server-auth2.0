@@ -26,7 +26,7 @@ public class OAuth2AuthorizationConsentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
-    private RegisteredClientEntity registeredClientEntity;
+    private ClientEntity clientEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
@@ -44,13 +44,13 @@ public class OAuth2AuthorizationConsentEntity {
             inverseJoinColumns = @JoinColumn(name = "scope_id"))
     private Set<ScopeEntity> scopeEntities = new HashSet<>();
 
-    public OAuth2AuthorizationConsentEntity(@NonNull RegisteredClientEntity registeredClientEntity, @NonNull ResourceOwnerEntity resourceOwnerEntity, Set<Role> roles, Set<ScopeEntity> scopeEntities) {
-        Assert.notNull(registeredClientEntity, "registeredClientEntity must not be null");
+    public OAuth2AuthorizationConsentEntity(@NonNull ClientEntity clientEntity, @NonNull ResourceOwnerEntity resourceOwnerEntity, Set<Role> roles, Set<ScopeEntity> scopeEntities) {
+        Assert.notNull(clientEntity, "clientEntity must not be null");
         Assert.notNull(resourceOwnerEntity, "resourceOwnerEntity must not be null");
         boolean isBothEmpty = roles.isEmpty() && scopeEntities.isEmpty();
         Assert.isTrue(!isBothEmpty, "one of roles and scopeEntities must not be empty");
 
-        this.registeredClientEntity = registeredClientEntity;
+        this.clientEntity = clientEntity;
         this.resourceOwnerEntity = resourceOwnerEntity;
         this.roles = roles;
         this.scopeEntities = scopeEntities;

@@ -1,6 +1,6 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RegisteredClientEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUriEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
@@ -35,29 +35,29 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
     @Override
     public void save(RegisteredClient registeredClient) {
         Assert.notNull(registeredClient, "registeredClient cannot be null");
-        RegisteredClientEntity registeredClientEntity = toEntity(registeredClient); //read only
-        clientRepository.save(registeredClientEntity); // write
+        ClientEntity clientEntity = toEntity(registeredClient); //read only
+        clientRepository.save(clientEntity); // write
     }
 
     @Nullable
     @Override
     public RegisteredClient findById(String id) {
-        RegisteredClientEntity registeredClientEntity = clientRepository.findById(id).orElse(null);
-        if (registeredClientEntity == null) return null;
-        return toDto(registeredClientEntity);
+        ClientEntity clientEntity = clientRepository.findById(id).orElse(null);
+        if (clientEntity == null) return null;
+        return toDto(clientEntity);
     }
 
     @Nullable
     @Override
     public RegisteredClient findByClientId(String clientId) {
-        RegisteredClientEntity registeredClientEntity = clientRepository.findByClientId(clientId).orElse(null);
-        if (registeredClientEntity == null) return null;
-        return toDto(registeredClientEntity);
+        ClientEntity clientEntity = clientRepository.findByClientId(clientId).orElse(null);
+        if (clientEntity == null) return null;
+        return toDto(clientEntity);
     }
 
-    private RegisteredClientEntity toEntity(RegisteredClient registeredClient){
+    private ClientEntity toEntity(RegisteredClient registeredClient){
         // column mapping
-        RegisteredClientEntity registeredClientEntity = RegisteredClientEntity.builder()
+        ClientEntity clientEntity = ClientEntity.builder()
                 .id(registeredClient.getId())
                 .clientName(registeredClient.getClientName())
                 .clientId(registeredClient.getClientId())
@@ -77,66 +77,66 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
         // relationship mapping
         //redirect uri
         registeredClient.getRedirectUris().forEach(redirectUri -> {
-            registeredClientEntity.getRedirectUrisEntities().add(new RedirectUriEntity(redirectUri, registeredClientEntity));
+            clientEntity.getRedirectUrisEntities().add(new RedirectUriEntity(redirectUri, clientEntity));
         });
 
         // scopeEntities
         Set<ScopeEntity> scopeEntities = scopeRepository.findByNameIn(registeredClient.getScopes());
-        registeredClientEntity.getScopeEntities().addAll(scopeEntities);
+        clientEntity.getScopeEntities().addAll(scopeEntities);
 
         // authentication methods
         Set<String> methodValues = registeredClient.getClientAuthenticationMethods().stream()
                 .map(ClientAuthenticationMethod::getValue)
                 .collect(Collectors.toSet());
         Set<ClientAuthenticationMethodEntity> methods = authenticationMethodRepository.findByNameIn(methodValues);
-        registeredClientEntity.getClientAuthenticationMethodEntities().addAll(methods);
+        clientEntity.getClientAuthenticationMethodEntities().addAll(methods);
 
         // grant types
         Set<String> grantTypeValues = registeredClient.getAuthorizationGrantTypes().stream()
                 .map(AuthorizationGrantType::getValue)
                 .collect(Collectors.toSet());
         Set<AuthorizationGrantTypeEntity> grantTypes = grantTypeRepository.findByNameIn(grantTypeValues);
-        registeredClientEntity.getAuthorizationGrantTypes().addAll(grantTypes);
+        clientEntity.getAuthorizationGrantTypes().addAll(grantTypes);
 
-        return registeredClientEntity;
+        return clientEntity;
     }
 
-    private RegisteredClient toDto(RegisteredClientEntity registeredClientEntity){
-        Set<AuthorizationGrantType> grantTypes = registeredClientEntity.getAuthorizationGrantTypes().stream()
+    private RegisteredClient toDto(ClientEntity clientEntity){
+        Set<AuthorizationGrantType> grantTypes = clientEntity.getAuthorizationGrantTypes().stream()
                 .map(AuthorizationGrantTypeEntity::getName)
                 .map(AuthorizationGrantType::new)
                 .collect(Collectors.toSet());
         // column mapping
-        return RegisteredClient.withId(registeredClientEntity.getId().toString())
-                .clientId(registeredClientEntity.getClientId())
-                .clientIdIssuedAt(registeredClientEntity.getClientIdIssuedAt())
-                .clientSecret(registeredClientEntity.getClientSecret())
-                .clientSecretExpiresAt(registeredClientEntity.getClientSecretExpiresAt())
-                .clientName(registeredClientEntity.getClientName())
+        return RegisteredClient.withId(clientEntity.getId().toString())
+                .clientId(clientEntity.getClientId())
+                .clientIdIssuedAt(clientEntity.getClientIdIssuedAt())
+                .clientSecret(clientEntity.getClientSecret())
+                .clientSecretExpiresAt(clientEntity.getClientSecretExpiresAt())
+                .clientName(clientEntity.getClientName())
                 .clientAuthenticationMethods(methodSet -> {
-                    registeredClientEntity.getClientAuthenticationMethodEntities().stream()
+                    clientEntity.getClientAuthenticationMethodEntities().stream()
                             .map(ClientAuthenticationMethodEntity::getName)
                             .map(ClientAuthenticationMethod::new)
                             .forEach(methodSet::add);
                 })
                 .authorizationGrantTypes(grantSet -> {
-                    registeredClientEntity.getAuthorizationGrantTypes().stream()
+                    clientEntity.getAuthorizationGrantTypes().stream()
                             .map(AuthorizationGrantTypeEntity::getName)
                             .map(AuthorizationGrantType::new)
                             .forEach(grantSet::add);
                 })
                 .redirectUris(redirectUriSet -> {
-                    registeredClientEntity.getRedirectUrisEntities().stream()
+                    clientEntity.getRedirectUrisEntities().stream()
                             .map(RedirectUriEntity::getUri)
                             .forEach(redirectUriSet::add);
                 })
                 .scopes(scopeSet -> {
-                    registeredClientEntity.getScopeEntities().stream()
+                    clientEntity.getScopeEntities().stream()
                             .map(ScopeEntity::getName)
                             .forEach(scopeSet::add);
                 })
-                .clientSettings(ClientSettings.withSettings(registeredClientEntity.getClientSettings()).build())
-                .tokenSettings(TokenSettings.withSettings(registeredClientEntity.getTokenSettings()).build())
+                .clientSettings(ClientSettings.withSettings(clientEntity.getClientSettings()).build())
+                .tokenSettings(TokenSettings.withSettings(clientEntity.getTokenSettings()).build())
                 .build();
     }
 

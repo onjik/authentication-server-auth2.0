@@ -1,6 +1,6 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RegisteredClientEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUriEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
@@ -74,27 +74,27 @@ class JpaRegisteredRegisteredClientRepositoryTestEntity {
         jpaRegisteredClientRepository.save(registeredClient);
 
         //then
-        Optional<RegisteredClientEntity> savedClient = clientRepository.findById(registeredClient.getId());
-        RegisteredClientEntity registeredClientEntity = savedClient.orElseGet(Assertions::fail);
-        assertTrue(registeredClientEntity.getRedirectUrisEntities().stream()
+        Optional<ClientEntity> savedClient = clientRepository.findById(registeredClient.getId());
+        ClientEntity clientEntity = savedClient.orElseGet(Assertions::fail);
+        assertTrue(clientEntity.getRedirectUrisEntities().stream()
                 .map(RedirectUriEntity::getUri)
                 .collect(Collectors.toSet())
                 .containsAll(registeredClient.getRedirectUris()));
-        assertTrue(registeredClientEntity.getScopeEntities().stream()
+        assertTrue(clientEntity.getScopeEntities().stream()
                 .map(ScopeEntity::getName)
                 .collect(Collectors.toSet())
                 .containsAll(registeredClient.getScopes()));
-        assertTrue(registeredClientEntity.getClientAuthenticationMethodEntities().stream()
+        assertTrue(clientEntity.getClientAuthenticationMethodEntities().stream()
                 .map(ClientAuthenticationMethodEntity::getName)
                 .collect(Collectors.toSet())
                 .contains(registeredClient.getClientAuthenticationMethods().iterator().next().getValue()));
 
-        assertTrue(registeredClientEntity.getAuthorizationGrantTypes().stream()
+        assertTrue(clientEntity.getAuthorizationGrantTypes().stream()
                 .map(AuthorizationGrantTypeEntity::getName)
                 .collect(Collectors.toSet())
                 .contains(registeredClient.getAuthorizationGrantTypes().iterator().next().getValue()));
-        assertEquals(ClientSettings.withSettings(registeredClientEntity.getClientSettings()).build(), registeredClient.getClientSettings());
-        assertEquals(TokenSettings.withSettings(registeredClientEntity.getTokenSettings()).build(), registeredClient.getTokenSettings());
+        assertEquals(ClientSettings.withSettings(clientEntity.getClientSettings()).build(), registeredClient.getClientSettings());
+        assertEquals(TokenSettings.withSettings(clientEntity.getTokenSettings()).build(), registeredClient.getTokenSettings());
 
     }
 

@@ -18,7 +18,7 @@ import java.util.*;
 @Entity @Table(name = "client")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RegisteredClientEntity {
+public class ClientEntity {
 
     @Id
     @Column(name = "id")
@@ -73,7 +73,7 @@ public class RegisteredClientEntity {
 
 
     @Builder
-    public RegisteredClientEntity(String id, String clientId, Instant clientIdIssuedAt, String clientName, String clientSecret, Instant clientSecretExpiresAt, Map<String, Object> clientSettings, Map<String, Object> tokenSettings) {
+    public ClientEntity(String id, String clientId, Instant clientIdIssuedAt, String clientName, String clientSecret, Instant clientSecretExpiresAt, Map<String, Object> clientSettings, Map<String, Object> tokenSettings) {
         this.id = id;
         this.clientId = clientId;
         this.clientIdIssuedAt = clientIdIssuedAt;

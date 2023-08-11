@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-class RegisteredClientEntityAuthenticationMethodEntityRepositoryTest {
+class ClientEntityAuthenticationMethodEntityRepositoryTest {
 
     @Autowired
     AuthenticationMethodRepository authenticationMethodRepository;

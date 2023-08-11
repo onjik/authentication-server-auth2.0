@@ -30,7 +30,7 @@ public class OAuth2AuthorizationEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
-    private RegisteredClientEntity registeredClientEntity;
+    private ClientEntity clientEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
@@ -72,8 +72,9 @@ public class OAuth2AuthorizationEntity {
     private Set<ScopeEntity> scopeEntities = new HashSet<>();
 
     @Builder
-    public OAuth2AuthorizationEntity(String id, ResourceOwnerEntity resourceOwnerEntity, AuthorizationGrantTypeEntity authorizationGrantTypeEntity, Map<String, String> attribute, String state, AccessTokenEntity accessToken, RefreshTokenEntity refreshToken, AuthorizationCode authorizationCode, OidcIdTokenEntity oidcIdToken, Set<ScopeEntity> scopeEntities) {
+    public OAuth2AuthorizationEntity(String id, ClientEntity clientEntity, ResourceOwnerEntity resourceOwnerEntity, AuthorizationGrantTypeEntity authorizationGrantTypeEntity, Map<String, String> attribute, String state, AccessTokenEntity accessToken, RefreshTokenEntity refreshToken, AuthorizationCode authorizationCode, OidcIdTokenEntity oidcIdToken, Set<ScopeEntity> scopeEntities) {
         this.id = id;
+        this.clientEntity = clientEntity;
         this.resourceOwnerEntity = resourceOwnerEntity;
         this.authorizationGrantTypeEntity = authorizationGrantTypeEntity;
         this.attribute = attribute;

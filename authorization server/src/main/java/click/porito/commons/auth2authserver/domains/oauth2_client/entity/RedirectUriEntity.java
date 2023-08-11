@@ -19,11 +19,11 @@ public class RedirectUriEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
-    private RegisteredClientEntity registeredClientEntity;
+    private ClientEntity clientEntity;
 
-    public RedirectUriEntity(String uri, RegisteredClientEntity registeredClientEntity) {
+    public RedirectUriEntity(String uri, ClientEntity clientEntity) {
         this.uri = uri;
-        this.registeredClientEntity = registeredClientEntity;
+        this.clientEntity = clientEntity;
     }
 
     public void setUri(String uri) {
