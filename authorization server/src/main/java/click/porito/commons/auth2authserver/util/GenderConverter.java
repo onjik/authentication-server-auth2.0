@@ -1,13 +1,13 @@
 package click.porito.commons.auth2authserver.util;
 
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwner;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import jakarta.persistence.AttributeConverter;
 
 import java.util.Arrays;
 
-public class GenderConverter implements AttributeConverter<ResourceOwner.Gender,Character> {
+public class GenderConverter implements AttributeConverter<ResourceOwnerEntity.Gender,Character> {
     @Override
-    public Character convertToDatabaseColumn(ResourceOwner.Gender attribute) {
+    public Character convertToDatabaseColumn(ResourceOwnerEntity.Gender attribute) {
         if (attribute == null) {
             return null;
         }
@@ -15,11 +15,11 @@ public class GenderConverter implements AttributeConverter<ResourceOwner.Gender,
     }
 
     @Override
-    public ResourceOwner.Gender convertToEntityAttribute(Character dbData) {
+    public ResourceOwnerEntity.Gender convertToEntityAttribute(Character dbData) {
         if (dbData == null) {
             return null;
         }
-        return Arrays.stream(ResourceOwner.Gender.values())
+        return Arrays.stream(ResourceOwnerEntity.Gender.values())
                 .filter(gender -> dbData.equals(gender.getIdChar()))
                 .findFirst()
                 .orElse(null);

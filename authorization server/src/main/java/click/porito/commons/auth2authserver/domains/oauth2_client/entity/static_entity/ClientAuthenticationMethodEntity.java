@@ -7,20 +7,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.lang.NonNull;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.util.Assert;
 
 /**
- * AuthorizationGrantType 정보를 담는 정적인 Entity
- * @see org.springframework.security.oauth2.core.AuthorizationGrantType
+ * ClientAuthenticationMethod 정보를 담는 정적인 Entity
+ * @see ClientAuthenticationMethod
  */
 @ConstantEntity
 @Cacheable @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Entity @Table(name = "authorization_grant_type")
+@Entity @Table(name = "authentication_method")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OAuth2AuthorizationGrantType {
+public class ClientAuthenticationMethodEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -30,18 +29,19 @@ public class OAuth2AuthorizationGrantType {
             length = 255, nullable = false)
     private String name;
 
-
-    public OAuth2AuthorizationGrantType(String name) {
-        Assert.hasText(name, "grantType cannot be null");
+    public ClientAuthenticationMethodEntity(String name) {
+        Assert.hasText(name, "name must not be empty");
         this.name = name;
     }
 
-    public static OAuth2AuthorizationGrantType from(@NonNull AuthorizationGrantType grantType) {
-        return new OAuth2AuthorizationGrantType(grantType.getValue());
+    public static ClientAuthenticationMethodEntity of(ClientAuthenticationMethod authenticationMethod) {
+        return new ClientAuthenticationMethodEntity(authenticationMethod.getValue());
     }
 
-    public AuthorizationGrantType toAuthorizationGrantType() {
-        return new AuthorizationGrantType(this.name);
+    public ClientAuthenticationMethod toClientAuthenticationMethod() {
+        return new ClientAuthenticationMethod(name);
+
     }
+
 
 }

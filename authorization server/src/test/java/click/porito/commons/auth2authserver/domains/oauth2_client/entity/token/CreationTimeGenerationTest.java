@@ -25,7 +25,7 @@ class CreationTimeGenerationTest {
     @Test
     void creationTimeGenerationTest() {
         //given
-        RefreshToken refreshToken = new RefreshToken(new HashMap<>(), "refresh_token");
+        RefreshTokenEntity refreshToken = new RefreshTokenEntity(new HashMap<>(), "refresh_token");
 
         //when
         entityManager.persist(refreshToken);

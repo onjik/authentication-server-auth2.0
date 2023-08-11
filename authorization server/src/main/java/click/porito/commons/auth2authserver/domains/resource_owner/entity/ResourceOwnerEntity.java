@@ -1,7 +1,7 @@
 package click.porito.commons.auth2authserver.domains.resource_owner.entity;
 
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.Role;
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.credential.Credential;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.credential.CredentialEntity;
 import click.porito.commons.auth2authserver.util.GenderConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -18,7 +18,7 @@ import java.util.Set;
 @Entity @Table(name = "resource_owner")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ResourceOwner {
+public class ResourceOwnerEntity {
 
     @Id
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -49,8 +49,8 @@ public class ResourceOwner {
     @Column(name = "is_disabled")
     private boolean disabled;
 
-    @OneToMany(mappedBy = "resourceOwner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Credential> credentials = new HashSet<>();
+    @OneToMany(mappedBy = "resourceOwnerEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CredentialEntity> credentialEntities = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "resource_owner_role",
@@ -59,18 +59,18 @@ public class ResourceOwner {
     private Set<Role> roles = new HashSet<>();
 
 
-    public ResourceOwner(String name, Gender gender, String email, Set<Credential> credentials, Set<Role> roles) {
+    public ResourceOwnerEntity(String name, Gender gender, String email, Set<CredentialEntity> credentialEntities, Set<Role> roles) {
         this.name = name;
         this.gender = gender;
         this.email = email;
-        this.credentials = credentials;
+        this.credentialEntities = credentialEntities;
         this.roles = roles;
         this.createdAt = Instant.now();
         this.locked = false;
         this.disabled = false;
     }
 
-    public ResourceOwner(String name, Gender gender, String email, Duration expiresAfter, Set<Credential> credentials, Set<Role> roles) {
+    public ResourceOwnerEntity(String name, Gender gender, String email, Duration expiresAfter, Set<CredentialEntity> credentialEntities, Set<Role> roles) {
         this.name = name;
         this.gender = gender;
         this.email = email;
@@ -78,7 +78,7 @@ public class ResourceOwner {
         this.expiresAt = createdAt.plus(expiresAfter);
         this.locked = false;
         this.disabled = false;
-        this.credentials = credentials;
+        this.credentialEntities = credentialEntities;
         this.roles = roles;
     }
 

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Entity @Table(name = "redirect_uri")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RedirectUri {
+public class RedirectUriEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -19,11 +19,11 @@ public class RedirectUri {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
+    private RegisteredClientEntity registeredClientEntity;
 
-    public RedirectUri(String uri, Client client) {
+    public RedirectUriEntity(String uri, RegisteredClientEntity registeredClientEntity) {
         this.uri = uri;
-        this.client = client;
+        this.registeredClientEntity = registeredClientEntity;
     }
 
     public void setUri(String uri) {

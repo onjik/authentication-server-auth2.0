@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
 @Entity @Table(name = "scope")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Scope {
+public class ScopeEntity {
 
     public static final String SCOPE_PREFIX = "SCOPE_";
 
@@ -38,7 +38,7 @@ public class Scope {
         this.uriEndpoint = uriEndpoint;
     }
 
-    public Scope(@NonNull String uriEndpoint, @NonNull String name) {
+    public ScopeEntity(@NonNull String uriEndpoint, @NonNull String name) {
         Assert.hasText(uriEndpoint, "uriEndpoint cannot be null");
         Assert.hasText(name, "name cannot be null");
         this.uriEndpoint = uriEndpoint;

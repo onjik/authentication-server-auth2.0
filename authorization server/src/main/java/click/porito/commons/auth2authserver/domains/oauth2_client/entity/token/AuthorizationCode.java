@@ -13,7 +13,7 @@ import java.util.Map;
 @Table(name = "authorization_code")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AuthorizationCode extends CommonToken {
+public class AuthorizationCode extends CommonTokenEntity {
     public AuthorizationCode(Map<String, Object> metadata, String value, Duration expiresAfter) {
         super(metadata, value, expiresAfter);
     }

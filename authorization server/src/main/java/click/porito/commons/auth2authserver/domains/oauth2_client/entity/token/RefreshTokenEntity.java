@@ -11,13 +11,13 @@ import java.util.Map;
 @Entity
 @Table(name = "refresh_token")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RefreshToken extends CommonToken {
+public class RefreshTokenEntity extends CommonTokenEntity {
 
-    public RefreshToken(Map<String, Object> metadata, String value) {
+    public RefreshTokenEntity(Map<String, Object> metadata, String value) {
         super(metadata, value);
     }
 
-    public RefreshToken(Map<String, Object> metadata, String value, Duration expiresAfter) {
+    public RefreshTokenEntity(Map<String, Object> metadata, String value, Duration expiresAfter) {
         super(metadata, value, expiresAfter);
     }
 }

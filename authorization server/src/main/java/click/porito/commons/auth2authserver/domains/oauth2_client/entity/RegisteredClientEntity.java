@@ -1,8 +1,8 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.entity;
 
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthenticationMethod;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.OAuth2AuthorizationGrantType;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.Scope;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -18,7 +18,7 @@ import java.util.*;
 @Entity @Table(name = "client")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Client {
+public class RegisteredClientEntity {
 
     @Id
     @Column(name = "id")
@@ -51,29 +51,29 @@ public class Client {
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY,
         cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RedirectUri> redirectUris = new HashSet<>();
+    private Set<RedirectUriEntity> redirectUrisEntities = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "client_scope",
             joinColumns = @JoinColumn(name = "client_id"),
             inverseJoinColumns = @JoinColumn(name = "scope_id"))
-    private Set<Scope> scopes = new HashSet<>();
+    private Set<ScopeEntity> scopeEntities = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "client_authentication_method" ,
             joinColumns = @JoinColumn(name = "client_id"),
             inverseJoinColumns = @JoinColumn(name = "authentication_method_id"))
-    private Set<AuthenticationMethod> authenticationMethods = new HashSet<>();
+    private Set<ClientAuthenticationMethodEntity> clientAuthenticationMethodEntities = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "client_authorization_grant_type",
             joinColumns = @JoinColumn(name = "client_id"),
             inverseJoinColumns = @JoinColumn(name = "authorization_grant_type_id"))
-    private Set<OAuth2AuthorizationGrantType> authorizationGrantTypes = new HashSet<>();
+    private Set<AuthorizationGrantTypeEntity> authorizationGrantTypes = new HashSet<>();
 
 
     @Builder
-    public Client(String id, String clientId, Instant clientIdIssuedAt, String clientName, String clientSecret, Instant clientSecretExpiresAt, Map<String, Object> clientSettings, Map<String, Object> tokenSettings) {
+    public RegisteredClientEntity(String id, String clientId, Instant clientIdIssuedAt, String clientName, String clientSecret, Instant clientSecretExpiresAt, Map<String, Object> clientSettings, Map<String, Object> tokenSettings) {
         this.id = id;
         this.clientId = clientId;
         this.clientIdIssuedAt = clientIdIssuedAt;

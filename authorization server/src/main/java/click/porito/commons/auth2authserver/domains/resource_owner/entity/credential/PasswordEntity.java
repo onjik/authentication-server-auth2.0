@@ -1,6 +1,6 @@
 package click.porito.commons.auth2authserver.domains.resource_owner.entity.credential;
 
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwner;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.time.Instant;
 @PrimaryKeyJoinColumn(name = "credential_id")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Password extends Credential {
+public class PasswordEntity extends CredentialEntity {
 
     @Column(name = "password_value", nullable = false)
     private String value;
@@ -27,8 +27,8 @@ public class Password extends Credential {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
-    public Password(ResourceOwner resourceOwner, String value, Duration expiresAfter) {
-        super(resourceOwner);
+    public PasswordEntity(ResourceOwnerEntity resourceOwnerEntity, String value, Duration expiresAfter) {
+        super(resourceOwnerEntity);
         this.value = value;
         this.issuedAt = Instant.now();
         this.expiresAt = issuedAt.plus(expiresAfter);

@@ -16,7 +16,7 @@ import java.util.Map;
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class CommonToken {
+public abstract class CommonTokenEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -36,14 +36,14 @@ public abstract class CommonToken {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
-    protected CommonToken(Map<String, Object> metadata, String value, Duration expiresAfter) {
+    protected CommonTokenEntity(Map<String, Object> metadata, String value, Duration expiresAfter) {
         this.metadata = metadata;
         this.value = value;
         this.issuedAt = Instant.now();
         this.expiresAt = issuedAt.plus(expiresAfter);
     }
 
-    protected CommonToken(Map<String, Object> metadata, String value) {
+    protected CommonTokenEntity(Map<String, Object> metadata, String value) {
         this.metadata = metadata;
         this.value = value;
         this.issuedAt = Instant.now();

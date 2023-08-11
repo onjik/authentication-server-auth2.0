@@ -1,6 +1,6 @@
 package click.porito.commons.auth2authserver.domains.resource_owner.entity.credential;
 
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwner;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @DiscriminatorColumn(name = "credential_type")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class Credential {
+public abstract class CredentialEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -19,9 +19,9 @@ public abstract class Credential {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
-    protected ResourceOwner resourceOwner;
+    protected ResourceOwnerEntity resourceOwnerEntity;
 
-    public Credential(ResourceOwner resourceOwner) {
-        this.resourceOwner = resourceOwner;
+    public CredentialEntity(ResourceOwnerEntity resourceOwnerEntity) {
+        this.resourceOwnerEntity = resourceOwnerEntity;
     }
 }

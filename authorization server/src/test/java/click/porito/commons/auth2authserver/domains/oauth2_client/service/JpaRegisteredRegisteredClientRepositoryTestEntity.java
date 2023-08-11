@@ -1,10 +1,10 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.Client;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUri;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthenticationMethod;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.OAuth2AuthorizationGrantType;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.Scope;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RegisteredClientEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUriEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthenticationMethodRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.GrantTypeRepository;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-class JpaRegisteredClientRepositoryTest {
+class JpaRegisteredRegisteredClientRepositoryTestEntity {
 
     @Autowired
     private ClientRepository clientRepository;
@@ -55,12 +55,12 @@ class JpaRegisteredClientRepositoryTest {
     @BeforeEach
     void setUp() {
         jpaRegisteredClientRepository = new JpaRegisteredClientRepository(clientRepository, scopeRepository, authenticationMethodRepository, grantTypeRepository);
-        Scope photo = new Scope("localhost:8080/photo", "photo");
+        ScopeEntity photo = new ScopeEntity("localhost:8080/photo", "photo");
         scopeRepository.save(photo);
-        AuthenticationMethod authenticationMethod = new AuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue());
-        authenticationMethodRepository.save(authenticationMethod);
-        OAuth2AuthorizationGrantType oAuth2AuthorizationGrantType = new OAuth2AuthorizationGrantType(AuthorizationGrantType.JWT_BEARER.getValue());
-        grantTypeRepository.save(oAuth2AuthorizationGrantType);
+        ClientAuthenticationMethodEntity clientAuthenticationMethodEntity = new ClientAuthenticationMethodEntity(ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue());
+        authenticationMethodRepository.save(clientAuthenticationMethodEntity);
+        AuthorizationGrantTypeEntity authorizationGrantTypeEntity = new AuthorizationGrantTypeEntity(AuthorizationGrantType.JWT_BEARER.getValue());
+        grantTypeRepository.save(authorizationGrantTypeEntity);
 
     }
 
@@ -74,27 +74,27 @@ class JpaRegisteredClientRepositoryTest {
         jpaRegisteredClientRepository.save(registeredClient);
 
         //then
-        Optional<Client> savedClient = clientRepository.findById(registeredClient.getId());
-        Client client = savedClient.orElseGet(Assertions::fail);
-        assertTrue(client.getRedirectUris().stream()
-                .map(RedirectUri::getUri)
+        Optional<RegisteredClientEntity> savedClient = clientRepository.findById(registeredClient.getId());
+        RegisteredClientEntity registeredClientEntity = savedClient.orElseGet(Assertions::fail);
+        assertTrue(registeredClientEntity.getRedirectUrisEntities().stream()
+                .map(RedirectUriEntity::getUri)
                 .collect(Collectors.toSet())
                 .containsAll(registeredClient.getRedirectUris()));
-        assertTrue(client.getScopes().stream()
-                .map(Scope::getName)
+        assertTrue(registeredClientEntity.getScopeEntities().stream()
+                .map(ScopeEntity::getName)
                 .collect(Collectors.toSet())
                 .containsAll(registeredClient.getScopes()));
-        assertTrue(client.getAuthenticationMethods().stream()
-                .map(AuthenticationMethod::getName)
+        assertTrue(registeredClientEntity.getClientAuthenticationMethodEntities().stream()
+                .map(ClientAuthenticationMethodEntity::getName)
                 .collect(Collectors.toSet())
                 .contains(registeredClient.getClientAuthenticationMethods().iterator().next().getValue()));
 
-        assertTrue(client.getAuthorizationGrantTypes().stream()
-                .map(OAuth2AuthorizationGrantType::getName)
+        assertTrue(registeredClientEntity.getAuthorizationGrantTypes().stream()
+                .map(AuthorizationGrantTypeEntity::getName)
                 .collect(Collectors.toSet())
                 .contains(registeredClient.getAuthorizationGrantTypes().iterator().next().getValue()));
-        assertEquals(ClientSettings.withSettings(client.getClientSettings()).build(), registeredClient.getClientSettings());
-        assertEquals(TokenSettings.withSettings(client.getTokenSettings()).build(), registeredClient.getTokenSettings());
+        assertEquals(ClientSettings.withSettings(registeredClientEntity.getClientSettings()).build(), registeredClient.getClientSettings());
+        assertEquals(TokenSettings.withSettings(registeredClientEntity.getTokenSettings()).build(), registeredClient.getTokenSettings());
 
     }
 

@@ -1,8 +1,8 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.entity;
 
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwner;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.Role;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.Scope;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,7 +18,7 @@ import java.util.Set;
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AuthorizationConsent {
+public class OAuth2AuthorizationConsentEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -26,11 +26,11 @@ public class AuthorizationConsent {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
+    private RegisteredClientEntity registeredClientEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
-    private ResourceOwner resourceOwner;
+    private ResourceOwnerEntity resourceOwnerEntity;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "authorization_consent_role",
@@ -42,17 +42,17 @@ public class AuthorizationConsent {
     @JoinTable(name = "authorization_consent_scope",
             joinColumns = @JoinColumn(name = "authorization_consent_id"),
             inverseJoinColumns = @JoinColumn(name = "scope_id"))
-    private Set<Scope> scopes = new HashSet<>();
+    private Set<ScopeEntity> scopeEntities = new HashSet<>();
 
-    public AuthorizationConsent(@NonNull Client client, @NonNull ResourceOwner resourceOwner, Set<Role> roles, Set<Scope> scopes) {
-        Assert.notNull(client, "client must not be null");
-        Assert.notNull(resourceOwner, "resourceOwner must not be null");
-        boolean isBothEmpty = roles.isEmpty() && scopes.isEmpty();
-        Assert.isTrue(!isBothEmpty, "one of roles and scopes must not be empty");
+    public OAuth2AuthorizationConsentEntity(@NonNull RegisteredClientEntity registeredClientEntity, @NonNull ResourceOwnerEntity resourceOwnerEntity, Set<Role> roles, Set<ScopeEntity> scopeEntities) {
+        Assert.notNull(registeredClientEntity, "registeredClientEntity must not be null");
+        Assert.notNull(resourceOwnerEntity, "resourceOwnerEntity must not be null");
+        boolean isBothEmpty = roles.isEmpty() && scopeEntities.isEmpty();
+        Assert.isTrue(!isBothEmpty, "one of roles and scopeEntities must not be empty");
 
-        this.client = client;
-        this.resourceOwner = resourceOwner;
+        this.registeredClientEntity = registeredClientEntity;
+        this.resourceOwnerEntity = resourceOwnerEntity;
         this.roles = roles;
-        this.scopes = scopes;
+        this.scopeEntities = scopeEntities;
     }
 }

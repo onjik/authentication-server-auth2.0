@@ -82,7 +82,7 @@ public class LocalTestSecurityConfig implements SecurityConfig {
                         .authenticationEntryPoint(
                                 new LoginUrlAuthenticationEntryPoint("/login"))
                 )
-                // Accept access tokens for User Info and/or Client Registration
+                // Accept access tokens for User Info and/or RegisteredClientEntity Registration
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 
         return http.build();

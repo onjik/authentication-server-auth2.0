@@ -1,12 +1,12 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.entity;
 
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.OAuth2AuthorizationGrantType;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.Scope;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.AccessToken;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.AccessTokenEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.AuthorizationCode;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.OidcIdToken;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.RefreshToken;
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwner;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.OidcIdTokenEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.RefreshTokenEntity;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -22,7 +22,7 @@ import java.util.Set;
 @Entity @Table(name = "oauth2_authorization")
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class OAuth2Authorization {
+public class OAuth2AuthorizationEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -30,11 +30,11 @@ public class OAuth2Authorization {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
-    private ResourceOwner resourceOwner;
+    private ResourceOwnerEntity resourceOwnerEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "authorization_grant_type_id", nullable = false)
-    private OAuth2AuthorizationGrantType oAuth2AuthorizationGrantType;
+    private AuthorizationGrantTypeEntity authorizationGrantTypeEntity;
 
     //optional = true
     @Type(JsonType.class)
@@ -47,11 +47,11 @@ public class OAuth2Authorization {
 
     @OneToOne(fetch = FetchType.EAGER, optional = true, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "access_token_id", nullable = true)
-    private AccessToken accessToken;
+    private AccessTokenEntity accessToken;
 
     @OneToOne(fetch = FetchType.EAGER, optional = true, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "refresh_token_id", nullable = true)
-    private RefreshToken refreshToken;
+    private RefreshTokenEntity refreshToken;
 
     @OneToOne(fetch = FetchType.EAGER, optional = true, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "authorization_code_id", nullable = true)
@@ -59,36 +59,36 @@ public class OAuth2Authorization {
 
     @OneToOne(fetch = FetchType.EAGER, optional = true, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "oidc_token_id", nullable = true)
-    private OidcIdToken oidcIdToken;
+    private OidcIdTokenEntity oidcIdToken;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "authorization_scope",
             joinColumns = @JoinColumn(name = "oauth2_authorization_id"),
             inverseJoinColumns = @JoinColumn(name = "scope_id"))
-    private Set<Scope> scopes = new HashSet<>();
+    private Set<ScopeEntity> scopeEntities = new HashSet<>();
 
     @Builder
-    public OAuth2Authorization(ResourceOwner resourceOwner, OAuth2AuthorizationGrantType oAuth2AuthorizationGrantType, Map<String, String> attribute, String state, AccessToken accessToken, RefreshToken refreshToken, AuthorizationCode authorizationCode, OidcIdToken oidcIdToken, Set<Scope> scopes) {
-        this.resourceOwner = resourceOwner;
-        this.oAuth2AuthorizationGrantType = oAuth2AuthorizationGrantType;
+    public OAuth2AuthorizationEntity(ResourceOwnerEntity resourceOwnerEntity, AuthorizationGrantTypeEntity authorizationGrantTypeEntity, Map<String, String> attribute, String state, AccessTokenEntity accessToken, RefreshTokenEntity refreshToken, AuthorizationCode authorizationCode, OidcIdTokenEntity oidcIdToken, Set<ScopeEntity> scopeEntities) {
+        this.resourceOwnerEntity = resourceOwnerEntity;
+        this.authorizationGrantTypeEntity = authorizationGrantTypeEntity;
         this.attribute = attribute;
         this.state = state;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.authorizationCode = authorizationCode;
         this.oidcIdToken = oidcIdToken;
-        this.scopes = scopes;
+        this.scopeEntities = scopeEntities;
     }
 
     public void setState(String state) {
         this.state = state;
     }
 
-    public void setAccessToken(AccessToken accessToken) {
+    public void setAccessToken(AccessTokenEntity accessToken) {
         this.accessToken = accessToken;
     }
 
-    public void setRefreshToken(RefreshToken refreshToken) {
+    public void setRefreshToken(RefreshTokenEntity refreshToken) {
         this.refreshToken = refreshToken;
     }
 
@@ -96,11 +96,11 @@ public class OAuth2Authorization {
         this.authorizationCode = authorizationCode;
     }
 
-    public void setOidcIdToken(OidcIdToken oidcIdToken) {
+    public void setOidcIdToken(OidcIdTokenEntity oidcIdToken) {
         this.oidcIdToken = oidcIdToken;
     }
 
-    public void setScopes(Set<Scope> scopes) {
-        this.scopes = scopes;
+    public void setScopeEntities(Set<ScopeEntity> scopeEntities) {
+        this.scopeEntities = scopeEntities;
     }
 }

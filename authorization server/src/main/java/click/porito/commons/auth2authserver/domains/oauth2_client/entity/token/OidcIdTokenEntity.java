@@ -12,7 +12,7 @@ import java.util.Map;
 @Entity @Table(name = "oidc_id_token")
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class OidcIdToken extends CommonToken {
+public class OidcIdTokenEntity extends CommonTokenEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -22,12 +22,12 @@ public class OidcIdToken extends CommonToken {
     @Column(name = "claims" , nullable = false, columnDefinition = "json")
     private Map<String,String> claims;
 
-    public OidcIdToken(Map<String, Object> metadata, String value, Duration expiresAfter, Map<String, String> claims) {
+    public OidcIdTokenEntity(Map<String, Object> metadata, String value, Duration expiresAfter, Map<String, String> claims) {
         super(metadata, value, expiresAfter);
         this.claims = claims;
     }
 
-    public OidcIdToken(Map<String, Object> metadata, String value, Map<String, String> claims) {
+    public OidcIdTokenEntity(Map<String, Object> metadata, String value, Map<String, String> claims) {
         super(metadata, value);
         this.claims = claims;
     }
