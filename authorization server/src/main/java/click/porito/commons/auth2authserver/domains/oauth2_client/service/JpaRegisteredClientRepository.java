@@ -18,13 +18,14 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class RegisteredClientRepositoryService implements RegisteredClientRepository {
+public class JpaRegisteredClientRepository implements RegisteredClientRepository {
 
     private final ClientRepository clientRepository;
     private final ScopeRepository scopeRepository;
@@ -33,6 +34,7 @@ public class RegisteredClientRepositoryService implements RegisteredClientReposi
 
     @Override
     public void save(RegisteredClient registeredClient) {
+        Assert.notNull(registeredClient, "registeredClient cannot be null");
         Client client = toEntity(registeredClient); //read only
         clientRepository.save(client); // write
     }

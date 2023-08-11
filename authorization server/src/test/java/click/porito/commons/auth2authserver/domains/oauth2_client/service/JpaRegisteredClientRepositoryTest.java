@@ -11,6 +11,7 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.repository.Gra
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +30,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-class RegisteredClientRepositoryServiceTest {
+class JpaRegisteredClientRepositoryTest {
 
     @Autowired
     private ClientRepository clientRepository;
@@ -50,11 +50,11 @@ class RegisteredClientRepositoryServiceTest {
     private GrantTypeRepository grantTypeRepository;
 
 
-    private RegisteredClientRepositoryService registeredClientRepositoryService;
+    private JpaRegisteredClientRepository jpaRegisteredClientRepository;
 
     @BeforeEach
     void setUp() {
-        registeredClientRepositoryService = new RegisteredClientRepositoryService(clientRepository, scopeRepository, authenticationMethodRepository, grantTypeRepository);
+        jpaRegisteredClientRepository = new JpaRegisteredClientRepository(clientRepository, scopeRepository, authenticationMethodRepository, grantTypeRepository);
         Scope photo = new Scope("localhost:8080/photo", "photo");
         scopeRepository.save(photo);
         AuthenticationMethod authenticationMethod = new AuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue());
@@ -65,12 +65,13 @@ class RegisteredClientRepositoryServiceTest {
     }
 
     @Test
-    void save() {
+    @DisplayName("RegisteredClient 저장 테스트")
+    void saveTest() {
         //given
         RegisteredClient registeredClient = given();
 
         //when
-        registeredClientRepositoryService.save(registeredClient);
+        jpaRegisteredClientRepository.save(registeredClient);
 
         //then
         Optional<Client> savedClient = clientRepository.findById(registeredClient.getId());
@@ -95,10 +96,44 @@ class RegisteredClientRepositoryServiceTest {
         assertEquals(ClientSettings.withSettings(client.getClientSettings()).build(), registeredClient.getClientSettings());
         assertEquals(TokenSettings.withSettings(client.getTokenSettings()).build(), registeredClient.getTokenSettings());
 
-        //TODO : 테스트 케이스 추가
-
     }
 
+    @Test
+    @DisplayName("RegisteredClient 저장시 null 인자로 예외 발생")
+    void saveWithNullArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> jpaRegisteredClientRepository.save(null));
+    }
+
+    @Test
+    @DisplayName("findById 로 저장된 RegisteredClient 조회 테스트")
+    void findById() {
+        //given
+        RegisteredClient registeredClient = given();
+        jpaRegisteredClientRepository.save(registeredClient);
+
+        //when
+        RegisteredClient client = jpaRegisteredClientRepository.findById(registeredClient.getId());
+
+        //then
+        assertNotNull(client);
+        assertEquals(registeredClient.getId(), client.getId());
+    }
+
+
+    @Test
+    void findByClientId() {
+        //given
+        RegisteredClient registeredClient = given();
+        jpaRegisteredClientRepository.save(registeredClient);
+
+        //when
+        RegisteredClient client = jpaRegisteredClientRepository.findByClientId(registeredClient.getClientId());
+
+        //then
+        assertNotNull(client);
+        assertEquals(registeredClient.getId(), client.getId());
+
+    }
 
     private RegisteredClient given(){
         ClientSettings clientSettings = ClientSettings.builder()
