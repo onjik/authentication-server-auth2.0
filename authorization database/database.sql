@@ -58,7 +58,7 @@ CREATE TABLE redirect_uri
 (
     id        bigserial PRIMARY KEY,
     uri       text   NOT NULL,
-    client_id bigint NOT NULL REFERENCES client (id),
+    client_id varchar(255) NOT NULL REFERENCES client (id),
     CONSTRAINT unique_client_uri UNIQUE (uri, client_id)
 );
 
@@ -95,14 +95,14 @@ CREATE TABLE password
 
 
 
-
 CREATE TABLE authorization_consent
 (
     id                bigserial PRIMARY KEY,
-    client_id         bigint      NOT NULL REFERENCES client (id),
-    resource_owner_id varchar(50) NOT NULL REFERENCES resource_owner (id),
+    client_id         varchar(255) NOT NULL REFERENCES client (id),
+    resource_owner_id varchar(50)  NOT NULL REFERENCES resource_owner (id),
     CONSTRAINT unique_consent UNIQUE (client_id, resource_owner_id)
 );
+
 
 
 
@@ -155,8 +155,9 @@ CREATE TABLE oidc_id_token
 CREATE TABLE oauth2_authorization
 (
     id                          bigserial PRIMARY KEY,
-    resource_owner_id           varchar(50) NOT NULL REFERENCES resource_owner (id),
-    authorization_grant_type_id bigint      NOT NULL REFERENCES authorization_grant_type (id),
+    client_id                   varchar(255) NOT NULL REFERENCES client (id),
+    resource_owner_id           varchar(50)  NOT NULL REFERENCES resource_owner (id),
+    authorization_grant_type_id bigint       NOT NULL REFERENCES authorization_grant_type (id),
     attribute                   json         DEFAULT NULL,
     state                       varchar(500) DEFAULT NULL,
     access_token_id             bigint       DEFAULT NULL REFERENCES access_token (id),
@@ -164,6 +165,7 @@ CREATE TABLE oauth2_authorization
     authorization_code_id       bigint       DEFAULT NULL REFERENCES authorization_code (id),
     oidc_token_id               bigint       DEFAULT NULL REFERENCES oidc_id_token (id)
 );
+
 
 
 
@@ -196,7 +198,7 @@ CREATE TABLE access_token_scope
 CREATE TABLE client_scope
 (
     scope_id  bigint REFERENCES scope (id),
-    client_id bigint REFERENCES client (id),
+    client_id varchar(255) REFERENCES client (id),
     PRIMARY KEY (scope_id, client_id)
 );
 
@@ -216,14 +218,14 @@ CREATE TABLE authorization_scope
 
 CREATE TABLE client_authentication_method
 (
-    client_id                bigint REFERENCES client (id),
+    client_id                varchar(255) REFERENCES client (id),
     authentication_method_id bigint REFERENCES authentication_method (id),
     PRIMARY KEY (client_id, authentication_method_id)
 );
 
 CREATE TABLE client_authorization_grant_type
 (
-    client_id                   bigint REFERENCES client (id),
+    client_id                   varchar(255) REFERENCES client (id),
     authorization_grant_type_id bigint REFERENCES authorization_grant_type (id),
     PRIMARY KEY (client_id, authorization_grant_type_id)
 );

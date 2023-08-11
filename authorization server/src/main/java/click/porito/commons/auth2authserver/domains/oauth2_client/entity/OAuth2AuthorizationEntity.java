@@ -29,6 +29,10 @@ public class OAuth2AuthorizationEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "client_id", nullable = false)
+    private RegisteredClientEntity registeredClientEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
     private ResourceOwnerEntity resourceOwnerEntity;
 
