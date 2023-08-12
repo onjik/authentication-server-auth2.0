@@ -26,7 +26,8 @@ Database Erd
 1. [왜 WebFlux 를 채택하지 않았나? (Why didn't I adopt WebFlux?)](document/why_didn't_i_adopt_webflux.md)
 
 ## 사용된 기술
-1. Spring Boot 2.7.15-SNAPSHOT
-2. jdk 11
+1. Spring Boot 3.0.0
+2. jdk 17
 3. jpa
 4. postgresql
+5. spring authorization server 1.0.3
