@@ -1,34 +1,59 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.entity.token;
 
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.OAuth2AuthorizationEntity;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.*;
 import org.hibernate.annotations.Type;
+import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 
-import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
+@DiscriminatorValue("oidc_id_token")
 @Entity @Table(name = "oidc_id_token")
 @Getter
-@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public class OidcIdTokenEntity extends CommonTokenEntity {
-
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
 
     @Type(JsonType.class)
     @Column(name = "claims" , nullable = false, columnDefinition = "json")
-    private Map<String,String> claims;
+    private Map<String, Object> claims;
 
-    public OidcIdTokenEntity(Map<String, Object> metadata, String value, Duration expiresAfter, Map<String, String> claims) {
-        super(metadata, value, expiresAfter);
+    @Override
+    public OidcIdToken toObject() {
+        return new OidcIdToken(this.getValue(), this.getIssuedAt(), this.getExpiresAt(), this.getClaims());
+    }
+
+    @Override
+    public Class<? extends OAuth2Token> obtainObjectType() {
+        return OidcIdToken.class;
+    }
+
+    @Builder
+    public OidcIdTokenEntity(Map<String, Object> metadata, String value, Instant issuedAt, Instant expiresAt, OAuth2AuthorizationEntity authorization, Map<String, Object> claims) {
+        super(metadata, value, issuedAt, expiresAt, authorization);
         this.claims = claims;
     }
 
-    public OidcIdTokenEntity(Map<String, Object> metadata, String value, Map<String, String> claims) {
-        super(metadata, value);
-        this.claims = claims;
+    public static OidcIdTokenEntity from(OAuth2Authorization.Token<OidcIdToken> oidcIdTokenTokenHolder, OAuth2AuthorizationEntity authorization){
+        OidcIdToken token = oidcIdTokenTokenHolder.getToken();
+        return OidcIdTokenEntity.builder()
+                .metadata(oidcIdTokenTokenHolder.getMetadata())
+                .value(token.getTokenValue())
+                .issuedAt(token.getIssuedAt())
+                .expiresAt(token.getExpiresAt())
+                .claims(token.getClaims())
+                .authorization(authorization)
+                .claims(token.getClaims())
+                .build();
     }
+
 }

@@ -1,23 +1,30 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.entity;
 
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity @Table(name = "client")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor
 public class ClientEntity {
 
     @Id
@@ -51,21 +58,21 @@ public class ClientEntity {
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY,
         cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RedirectUriEntity> redirectUrisEntities = new HashSet<>();
+    private Set<RedirectUriEntity> redirectUris = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "client_scope",
             joinColumns = @JoinColumn(name = "client_id"),
             inverseJoinColumns = @JoinColumn(name = "scope_id"))
-    private Set<ScopeEntity> scopeEntities = new HashSet<>();
+    private Set<ScopeEntity> scopes = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "client_authentication_method" ,
             joinColumns = @JoinColumn(name = "client_id"),
             inverseJoinColumns = @JoinColumn(name = "authentication_method_id"))
-    private Set<ClientAuthenticationMethodEntity> clientAuthenticationMethodEntities = new HashSet<>();
+    private Set<ClientAuthenticationMethodEntity> clientAuthenticationMethods = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "client_authorization_grant_type",
             joinColumns = @JoinColumn(name = "client_id"),
             inverseJoinColumns = @JoinColumn(name = "authorization_grant_type_id"))
@@ -82,6 +89,65 @@ public class ClientEntity {
         this.clientSecretExpiresAt = clientSecretExpiresAt;
         this.clientSettings = clientSettings;
         this.tokenSettings = tokenSettings;
+    }
+
+    public void addRedirectUri(RedirectUriEntity redirectUriEntity){
+        this.redirectUris.add(redirectUriEntity);
+        redirectUriEntity.setClient(this);
+    }
+
+    public void addScope(ScopeEntity scopeEntity) {
+        this.scopes.add(scopeEntity);
+    }
+
+    public void addClientAuthenticationMethod(ClientAuthenticationMethodEntity clientAuthenticationMethodEntity){
+        this.clientAuthenticationMethods.add(clientAuthenticationMethodEntity);
+    }
+
+    public void addAuthorizationGrantType(AuthorizationGrantTypeEntity authorizationGrantTypeEntity){
+        this.authorizationGrantTypes.add(authorizationGrantTypeEntity);
+    }
+
+    public RegisteredClient toObject(){
+        Set<AuthorizationGrantType> grantTypes = this.getAuthorizationGrantTypes().stream()
+                .map(AuthorizationGrantTypeEntity::getName)
+                .map(AuthorizationGrantType::new)
+                .collect(Collectors.toSet());
+        // column mapping
+        return RegisteredClient.withId(this.getId().toString())
+                .clientId(this.getClientId())
+                .clientIdIssuedAt(this.getClientIdIssuedAt())
+                .clientName(this.getClientName())
+                .clientSecret(this.getClientSecret())
+                .clientSecretExpiresAt(this.getClientSecretExpiresAt())
+                .authorizationGrantTypes(grantTypeSet -> {
+                    grantTypeSet.addAll(grantTypes);
+                })
+                .clientAuthenticationMethods(methodSet -> {
+                    this.getClientAuthenticationMethods().stream()
+                            .map(ClientAuthenticationMethodEntity::getName)
+                            .map(ClientAuthenticationMethod::new)
+                            .forEach(methodSet::add);
+                })
+                .authorizationGrantTypes(grantSet -> {
+                    this.getAuthorizationGrantTypes().stream()
+                            .map(AuthorizationGrantTypeEntity::getName)
+                            .map(AuthorizationGrantType::new)
+                            .forEach(grantSet::add);
+                })
+                .redirectUris(redirectUriSet -> {
+                    this.getRedirectUris().stream()
+                            .map(RedirectUriEntity::getUri)
+                            .forEach(redirectUriSet::add);
+                })
+                .scopes(scopeSet -> {
+                    this.getScopes().stream()
+                            .map(ScopeEntity::getName)
+                            .forEach(scopeSet::add);
+                })
+                .clientSettings(ClientSettings.withSettings(this.getClientSettings()).build())
+                .tokenSettings(TokenSettings.withSettings(this.getTokenSettings()).build())
+                .build();
     }
 
 

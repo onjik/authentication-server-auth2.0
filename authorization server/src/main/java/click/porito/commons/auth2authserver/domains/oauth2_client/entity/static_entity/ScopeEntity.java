@@ -2,19 +2,13 @@ package click.porito.commons.auth2authserver.domains.oauth2_client.entity.static
 
 import click.porito.commons.auth2authserver.global.util.ConstantEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.lang.NonNull;
-import org.springframework.util.Assert;
+import lombok.*;
 
 @ConstantEntity
-@Cacheable @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity @Table(name = "scope")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 public class ScopeEntity {
 
     public static final String SCOPE_PREFIX = "SCOPE_";
@@ -34,17 +28,8 @@ public class ScopeEntity {
         return SCOPE_PREFIX + name;
     }
 
-    public void setUriEndpoint(String uriEndpoint) {
-        this.uriEndpoint = uriEndpoint;
-    }
-
-    public ScopeEntity(@NonNull String uriEndpoint, @NonNull String name) {
-        Assert.hasText(uriEndpoint, "uriEndpoint cannot be null");
-        Assert.hasText(name, "name cannot be null");
+    public ScopeEntity(String uriEndpoint, String name) {
         this.uriEndpoint = uriEndpoint;
         this.name = name;
     }
-
-
-
 }

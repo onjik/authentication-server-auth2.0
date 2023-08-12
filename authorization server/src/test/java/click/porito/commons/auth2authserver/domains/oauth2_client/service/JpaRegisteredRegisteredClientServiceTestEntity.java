@@ -7,7 +7,7 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthenticationMethodRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.GrantTypeRepository;
+import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthorizationGrantTypeRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-class JpaRegisteredRegisteredClientRepositoryTestEntity {
+class JpaRegisteredRegisteredClientServiceTestEntity {
 
     @Autowired
     private ClientRepository clientRepository;
@@ -47,20 +48,20 @@ class JpaRegisteredRegisteredClientRepositoryTestEntity {
     private AuthenticationMethodRepository authenticationMethodRepository;
 
     @Autowired
-    private GrantTypeRepository grantTypeRepository;
+    private AuthorizationGrantTypeRepository authorizationGrantTypeRepository;
 
 
-    private JpaRegisteredClientRepository jpaRegisteredClientRepository;
+    private RegisteredClientRepository jpaRegisteredClientService;
 
     @BeforeEach
     void setUp() {
-        jpaRegisteredClientRepository = new JpaRegisteredClientRepository(clientRepository, scopeRepository, authenticationMethodRepository, grantTypeRepository);
+        jpaRegisteredClientService = new JpaRegisteredClientService(clientRepository, scopeRepository, authenticationMethodRepository, authorizationGrantTypeRepository);
         ScopeEntity photo = new ScopeEntity("localhost:8080/photo", "photo");
         scopeRepository.save(photo);
         ClientAuthenticationMethodEntity clientAuthenticationMethodEntity = new ClientAuthenticationMethodEntity(ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue());
         authenticationMethodRepository.save(clientAuthenticationMethodEntity);
         AuthorizationGrantTypeEntity authorizationGrantTypeEntity = new AuthorizationGrantTypeEntity(AuthorizationGrantType.JWT_BEARER.getValue());
-        grantTypeRepository.save(authorizationGrantTypeEntity);
+        authorizationGrantTypeRepository.save(authorizationGrantTypeEntity);
 
     }
 
@@ -71,20 +72,20 @@ class JpaRegisteredRegisteredClientRepositoryTestEntity {
         RegisteredClient registeredClient = given();
 
         //when
-        jpaRegisteredClientRepository.save(registeredClient);
+        jpaRegisteredClientService.save(registeredClient);
 
         //then
         Optional<ClientEntity> savedClient = clientRepository.findById(registeredClient.getId());
         ClientEntity clientEntity = savedClient.orElseGet(Assertions::fail);
-        assertTrue(clientEntity.getRedirectUrisEntities().stream()
+        assertTrue(clientEntity.getRedirectUris().stream()
                 .map(RedirectUriEntity::getUri)
                 .collect(Collectors.toSet())
                 .containsAll(registeredClient.getRedirectUris()));
-        assertTrue(clientEntity.getScopeEntities().stream()
+        assertTrue(clientEntity.getScopes().stream()
                 .map(ScopeEntity::getName)
                 .collect(Collectors.toSet())
                 .containsAll(registeredClient.getScopes()));
-        assertTrue(clientEntity.getClientAuthenticationMethodEntities().stream()
+        assertTrue(clientEntity.getClientAuthenticationMethods().stream()
                 .map(ClientAuthenticationMethodEntity::getName)
                 .collect(Collectors.toSet())
                 .contains(registeredClient.getClientAuthenticationMethods().iterator().next().getValue()));
@@ -101,7 +102,7 @@ class JpaRegisteredRegisteredClientRepositoryTestEntity {
     @Test
     @DisplayName("RegisteredClient 저장시 null 인자로 예외 발생")
     void saveWithNullArgument() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> jpaRegisteredClientRepository.save(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> jpaRegisteredClientService.save(null));
     }
 
     @Test
@@ -109,10 +110,10 @@ class JpaRegisteredRegisteredClientRepositoryTestEntity {
     void findById() {
         //given
         RegisteredClient registeredClient = given();
-        jpaRegisteredClientRepository.save(registeredClient);
+        jpaRegisteredClientService.save(registeredClient);
 
         //when
-        RegisteredClient client = jpaRegisteredClientRepository.findById(registeredClient.getId());
+        RegisteredClient client = jpaRegisteredClientService.findById(registeredClient.getId());
 
         //then
         assertNotNull(client);
@@ -124,10 +125,10 @@ class JpaRegisteredRegisteredClientRepositoryTestEntity {
     void findByClientId() {
         //given
         RegisteredClient registeredClient = given();
-        jpaRegisteredClientRepository.save(registeredClient);
+        jpaRegisteredClientService.save(registeredClient);
 
         //when
-        RegisteredClient client = jpaRegisteredClientRepository.findByClientId(registeredClient.getClientId());
+        RegisteredClient client = jpaRegisteredClientService.findByClientId(registeredClient.getClientId());
 
         //then
         assertNotNull(client);

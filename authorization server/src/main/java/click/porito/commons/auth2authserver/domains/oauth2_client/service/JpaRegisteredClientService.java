@@ -2,35 +2,37 @@ package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUriEntity;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthenticationMethodRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.GrantTypeRepository;
+import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthorizationGrantTypeRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
-import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.util.List;
 import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class JpaRegisteredClientRepository implements RegisteredClientRepository {
+public class JpaRegisteredClientService implements RegisteredClientRepository {
 
     private final ClientRepository clientRepository;
     private final ScopeRepository scopeRepository;
     private final AuthenticationMethodRepository authenticationMethodRepository;
-    private final GrantTypeRepository grantTypeRepository;
+    private final AuthorizationGrantTypeRepository authorizationGrantTypeRepository;
 
     @Override
     public void save(RegisteredClient registeredClient) {
@@ -44,7 +46,7 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
     public RegisteredClient findById(String id) {
         ClientEntity clientEntity = clientRepository.findById(id).orElse(null);
         if (clientEntity == null) return null;
-        return toDto(clientEntity);
+        return clientEntity.toObject();
     }
 
     @Nullable
@@ -52,15 +54,15 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
     public RegisteredClient findByClientId(String clientId) {
         ClientEntity clientEntity = clientRepository.findByClientId(clientId).orElse(null);
         if (clientEntity == null) return null;
-        return toDto(clientEntity);
+        return clientEntity.toObject();
     }
 
     private ClientEntity toEntity(RegisteredClient registeredClient){
         // column mapping
         ClientEntity clientEntity = ClientEntity.builder()
                 .id(registeredClient.getId())
-                .clientName(registeredClient.getClientName())
                 .clientId(registeredClient.getClientId())
+                .clientName(registeredClient.getClientName())
                 .clientIdIssuedAt(registeredClient.getClientIdIssuedAt())
                 .clientSecret(registeredClient.getClientSecret())
                 .clientSecretExpiresAt(registeredClient.getClientSecretExpiresAt())
@@ -77,67 +79,56 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
         // relationship mapping
         //redirect uri
         registeredClient.getRedirectUris().forEach(redirectUri -> {
-            clientEntity.getRedirectUrisEntities().add(new RedirectUriEntity(redirectUri, clientEntity));
+
+            clientEntity.getRedirectUris().add(new RedirectUriEntity(redirectUri, clientEntity));
         });
 
         // scopeEntities
-        Set<ScopeEntity> scopeEntities = scopeRepository.findByNameIn(registeredClient.getScopes());
-        clientEntity.getScopeEntities().addAll(scopeEntities);
+        Set<ScopeEntity> scopeEntities = loadEntity(
+                registeredClient.getScopes(),
+                scopeRepository::findByNameIn,
+                (scope, scopeEntity) -> scope.equals(scopeEntity.getName())
+        );
+        clientEntity.getScopes().addAll(scopeEntities);
 
         // authentication methods
         Set<String> methodValues = registeredClient.getClientAuthenticationMethods().stream()
                 .map(ClientAuthenticationMethod::getValue)
                 .collect(Collectors.toSet());
-        Set<ClientAuthenticationMethodEntity> methods = authenticationMethodRepository.findByNameIn(methodValues);
-        clientEntity.getClientAuthenticationMethodEntities().addAll(methods);
+        Set<ClientAuthenticationMethodEntity> methodEntities = loadEntity(
+                methodValues,
+                authenticationMethodRepository::findByNameIn,
+                (method, methodEntity) -> method.equals(methodEntity.getName())
+        );
+        clientEntity.getClientAuthenticationMethods().addAll(methodEntities);
 
         // grant types
         Set<String> grantTypeValues = registeredClient.getAuthorizationGrantTypes().stream()
                 .map(AuthorizationGrantType::getValue)
                 .collect(Collectors.toSet());
-        Set<AuthorizationGrantTypeEntity> grantTypes = grantTypeRepository.findByNameIn(grantTypeValues);
-        clientEntity.getAuthorizationGrantTypes().addAll(grantTypes);
+        Set<AuthorizationGrantTypeEntity> grantTypeEntities = loadEntity(
+                grantTypeValues,
+                authorizationGrantTypeRepository::findByNameIn,
+                (grantType, grantTypeEntity) -> grantType.equals(grantTypeEntity.getName())
+        );
+        clientEntity.getAuthorizationGrantTypes().addAll(grantTypeEntities);
 
         return clientEntity;
     }
 
-    private RegisteredClient toDto(ClientEntity clientEntity){
-        Set<AuthorizationGrantType> grantTypes = clientEntity.getAuthorizationGrantTypes().stream()
-                .map(AuthorizationGrantTypeEntity::getName)
-                .map(AuthorizationGrantType::new)
-                .collect(Collectors.toSet());
-        // column mapping
-        return RegisteredClient.withId(clientEntity.getId().toString())
-                .clientId(clientEntity.getClientId())
-                .clientIdIssuedAt(clientEntity.getClientIdIssuedAt())
-                .clientSecret(clientEntity.getClientSecret())
-                .clientSecretExpiresAt(clientEntity.getClientSecretExpiresAt())
-                .clientName(clientEntity.getClientName())
-                .clientAuthenticationMethods(methodSet -> {
-                    clientEntity.getClientAuthenticationMethodEntities().stream()
-                            .map(ClientAuthenticationMethodEntity::getName)
-                            .map(ClientAuthenticationMethod::new)
-                            .forEach(methodSet::add);
-                })
-                .authorizationGrantTypes(grantSet -> {
-                    clientEntity.getAuthorizationGrantTypes().stream()
-                            .map(AuthorizationGrantTypeEntity::getName)
-                            .map(AuthorizationGrantType::new)
-                            .forEach(grantSet::add);
-                })
-                .redirectUris(redirectUriSet -> {
-                    clientEntity.getRedirectUrisEntities().stream()
-                            .map(RedirectUriEntity::getUri)
-                            .forEach(redirectUriSet::add);
-                })
-                .scopes(scopeSet -> {
-                    clientEntity.getScopeEntities().stream()
-                            .map(ScopeEntity::getName)
-                            .forEach(scopeSet::add);
-                })
-                .clientSettings(ClientSettings.withSettings(clientEntity.getClientSettings()).build())
-                .tokenSettings(TokenSettings.withSettings(clientEntity.getTokenSettings()).build())
-                .build();
+    private <BY,E> Set<E> loadEntity(Set<BY> loadBy,
+                                     Function<Set<BY>, Set<E>> loadFunction,
+                                     BiPredicate<BY,E> isMatch) {
+        Set<E> entitySet = loadFunction.apply(loadBy);
+        if (entitySet.size() != loadBy.size()) {
+            //find which is not found
+            List<BY> notFound = loadBy.stream()
+                    .filter(by -> entitySet.stream().noneMatch(entity -> isMatch.test(by, entity)))
+                    .toList();
+            throw new DataRetrievalFailureException("not found entity (entities) -> " + notFound);
+        }
+        return entitySet;
     }
+
 
 }

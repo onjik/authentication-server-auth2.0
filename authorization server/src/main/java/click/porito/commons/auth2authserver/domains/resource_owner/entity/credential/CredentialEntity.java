@@ -2,15 +2,15 @@ package click.porito.commons.auth2authserver.domains.resource_owner.entity.crede
 
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity @Table(name = "credential")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "credential_type")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor
 public abstract class CredentialEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,9 +19,9 @@ public abstract class CredentialEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
-    protected ResourceOwnerEntity resourceOwnerEntity;
+    protected ResourceOwnerEntity resourceOwner;
 
-    public CredentialEntity(ResourceOwnerEntity resourceOwnerEntity) {
-        this.resourceOwnerEntity = resourceOwnerEntity;
+    public CredentialEntity(ResourceOwnerEntity resourceOwner) {
+        this.resourceOwner = resourceOwner;
     }
 }

@@ -2,23 +2,18 @@ package click.porito.commons.auth2authserver.domains.oauth2_client.entity.static
 
 import click.porito.commons.auth2authserver.global.util.ConstantEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import lombok.*;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.util.Assert;
 
 /**
  * ClientAuthenticationMethod 정보를 담는 정적인 Entity
  * @see ClientAuthenticationMethod
  */
 @ConstantEntity
-@Cacheable @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 @Entity @Table(name = "authentication_method")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 public class ClientAuthenticationMethodEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,12 +25,13 @@ public class ClientAuthenticationMethodEntity {
     private String name;
 
     public ClientAuthenticationMethodEntity(String name) {
-        Assert.hasText(name, "name must not be empty");
         this.name = name;
     }
 
     public static ClientAuthenticationMethodEntity of(ClientAuthenticationMethod authenticationMethod) {
-        return new ClientAuthenticationMethodEntity(authenticationMethod.getValue());
+        ClientAuthenticationMethodEntity method = new ClientAuthenticationMethodEntity();
+        method.setName(authenticationMethod.getValue());
+        return method;
     }
 
     public ClientAuthenticationMethod toClientAuthenticationMethod() {

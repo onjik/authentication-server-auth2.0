@@ -1,13 +1,13 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity @Table(name = "redirect_uri")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor
 public class RedirectUriEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,14 +19,10 @@ public class RedirectUriEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
-    private ClientEntity clientEntity;
+    private ClientEntity client;
 
-    public RedirectUriEntity(String uri, ClientEntity clientEntity) {
+    public RedirectUriEntity(String uri, ClientEntity client) {
         this.uri = uri;
-        this.clientEntity = clientEntity;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
+        this.client = client;
     }
 }

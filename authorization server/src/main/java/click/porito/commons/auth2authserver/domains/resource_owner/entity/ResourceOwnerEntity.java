@@ -1,23 +1,22 @@
 package click.porito.commons.auth2authserver.domains.resource_owner.entity;
 
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.Role;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.credential.CredentialEntity;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import click.porito.commons.auth2authserver.util.GenderConverter;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity @Table(name = "resource_owner")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter @EqualsAndHashCode(of = "id")
+@NoArgsConstructor
 public class ResourceOwnerEntity {
 
     @Id
@@ -40,7 +39,8 @@ public class ResourceOwnerEntity {
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
-    @Column(name = "expires_at")
+    @Nullable
+    @Column(name = "expires_at", nullable = true)
     private Instant expiresAt;
 
     @Column(name = "is_locked")
@@ -49,37 +49,33 @@ public class ResourceOwnerEntity {
     @Column(name = "is_disabled")
     private boolean disabled;
 
-    @OneToMany(mappedBy = "resourceOwnerEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CredentialEntity> credentialEntities = new HashSet<>();
+    @OneToMany(mappedBy = "resourceOwner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CredentialEntity> credentials = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "resource_owner_role",
             joinColumns = @JoinColumn(name = "resource_owner_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    private Set<RoleEntity> roleEntities = new HashSet<>();
 
-
-    public ResourceOwnerEntity(String name, Gender gender, String email, Set<CredentialEntity> credentialEntities, Set<Role> roles) {
+    @Builder
+    public ResourceOwnerEntity(String name, Gender gender, String email, Instant createdAt, Instant expiresAt, boolean locked, boolean disabled) {
         this.name = name;
         this.gender = gender;
         this.email = email;
-        this.credentialEntities = credentialEntities;
-        this.roles = roles;
-        this.createdAt = Instant.now();
-        this.locked = false;
-        this.disabled = false;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
+        this.locked = locked;
+        this.disabled = disabled;
     }
 
-    public ResourceOwnerEntity(String name, Gender gender, String email, Duration expiresAfter, Set<CredentialEntity> credentialEntities, Set<Role> roles) {
-        this.name = name;
-        this.gender = gender;
-        this.email = email;
-        this.createdAt = Instant.now();
-        this.expiresAt = createdAt.plus(expiresAfter);
-        this.locked = false;
-        this.disabled = false;
-        this.credentialEntities = credentialEntities;
-        this.roles = roles;
+    public void addCredential(CredentialEntity credential) {
+        credentials.add(credential);
+        credential.setResourceOwner(this);
+    }
+
+    public void addRole(RoleEntity roleEntity) {
+        roleEntities.add(roleEntity);
     }
 
     public enum Gender {

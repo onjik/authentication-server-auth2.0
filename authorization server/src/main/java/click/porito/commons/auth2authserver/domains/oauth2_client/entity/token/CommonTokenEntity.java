@@ -1,25 +1,31 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.entity.token;
 
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.OAuth2AuthorizationEntity;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
+import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-@MappedSuperclass
+@Entity @Table(name = "token")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor
 public abstract class CommonTokenEntity {
 
+    public static final Map<String,Object> DEFAULT_METADATA = Map.of(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, false);
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "token_id")
     private Long id;
 
     @Type(JsonType.class)
@@ -36,20 +42,19 @@ public abstract class CommonTokenEntity {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
-    protected CommonTokenEntity(Map<String, Object> metadata, String value, Duration expiresAfter) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "oauth2_authorization_id", nullable = false)
+    private OAuth2AuthorizationEntity authorization;
+
+    public abstract Object toObject();
+
+    public abstract Class<? extends OAuth2Token> obtainObjectType();
+
+    public CommonTokenEntity(Map<String, Object> metadata, String value, Instant issuedAt, Instant expiresAt, OAuth2AuthorizationEntity authorization) {
         this.metadata = metadata;
         this.value = value;
-        this.issuedAt = Instant.now();
-        this.expiresAt = issuedAt.plus(expiresAfter);
-    }
-
-    protected CommonTokenEntity(Map<String, Object> metadata, String value) {
-        this.metadata = metadata;
-        this.value = value;
-        this.issuedAt = Instant.now();
-    }
-
-    public void setExpiresAt(Instant expiresAt) {
+        this.issuedAt = issuedAt;
         this.expiresAt = expiresAt;
+        this.authorization = authorization;
     }
 }
