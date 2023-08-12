@@ -103,55 +103,6 @@ CREATE TABLE authorization_consent
     CONSTRAINT unique_consent UNIQUE (client_id, resource_owner_id)
 );
 
-
-
-
-CREATE TABLE access_token
-(
-    id          bigserial PRIMARY KEY,
-    token_type  varchar(255) NOT NULL,
-    metadata    json      DEFAULT NULL,
-    token_value text         NOT NULL,
-    issued_at   timestamp DEFAULT NOW(),
-    expires_at  timestamp    NOT NULL
-);
-
-
-
-
-CREATE TABLE refresh_token
-(
-    id          bigserial PRIMARY KEY,
-    metadata    json      DEFAULT NULL,
-    token_value text NOT NULL,
-    issued_at   timestamp DEFAULT NOW(),
-    expires_at  timestamp DEFAULT NULL
-);
-
-
-
-CREATE TABLE authorization_code
-(
-    id          bigserial PRIMARY KEY,
-    metadata    json      DEFAULT NULL,
-    token_value text NOT NULL,
-    issued_at   timestamp DEFAULT NOW(),
-    expires_at  timestamp DEFAULT NULL
-);
-
-
-
-CREATE TABLE oidc_id_token
-(
-    id          bigserial PRIMARY KEY,
-    claims      json NOT NULL,
-    metadata    json      DEFAULT NULL,
-    token_value text NOT NULL,
-    issued_at   timestamp DEFAULT NOW(),
-    expires_at  timestamp DEFAULT NULL
-);
-
-
 CREATE TABLE oauth2_authorization
 (
     id                          varchar(255) PRIMARY KEY,
@@ -159,12 +110,50 @@ CREATE TABLE oauth2_authorization
     resource_owner_id           varchar(50)  NOT NULL REFERENCES resource_owner (id),
     authorization_grant_type_id bigint       NOT NULL REFERENCES authorization_grant_type (id),
     attribute                   json         DEFAULT NULL,
-    state                       varchar(500) DEFAULT NULL,
-    access_token_id             bigint       DEFAULT NULL REFERENCES access_token (id),
-    refresh_token_id            bigint       DEFAULT NULL REFERENCES refresh_token (id),
-    authorization_code_id       bigint       DEFAULT NULL REFERENCES authorization_code (id),
-    oidc_token_id               bigint       DEFAULT NULL REFERENCES oidc_id_token (id)
+    state                       varchar(500) DEFAULT NULL
 );
+
+CREATE TABLE token
+(
+    token_id                bigserial PRIMARY KEY,
+    dtype                   varchar(100) NOT NULL,
+    issued_at               timestamp DEFAULT NOW(),
+    expires_at              timestamp    NOT NULL,
+    oauth2_authorization_id varchar(255) REFERENCES oauth2_authorization (id)
+);
+
+
+CREATE TABLE access_token
+(
+    token_id   bigserial PRIMARY KEY REFERENCES token (token_id),
+    token_type varchar(255) NOT NULL
+);
+
+
+
+CREATE TABLE refresh_token
+(
+    token_id bigserial PRIMARY KEY REFERENCES token (token_id)
+);
+
+
+
+CREATE TABLE authorization_code
+(
+    token_id bigserial PRIMARY KEY REFERENCES token (token_id)
+);
+
+
+
+
+CREATE TABLE oidc_id_token
+(
+    token_id bigserial PRIMARY KEY REFERENCES token (token_id),
+    claims   json NOT NULL
+);
+
+
+
 
 
 
@@ -191,7 +180,7 @@ CREATE TABLE authorization_consent_role
 CREATE TABLE access_token_scope
 (
     scope_id bigint REFERENCES scope (id),
-    token_id bigint REFERENCES access_token (id),
+    token_id bigint REFERENCES access_token (token_id),
     PRIMARY KEY (scope_id,token_id)
 );
 
@@ -211,10 +200,11 @@ CREATE TABLE authorization_consent_scope
 
 CREATE TABLE authorization_scope
 (
-    scope_id         varchar(255) REFERENCES scope (id),
+    scope_id                bigint REFERENCES scope (id),
     oauth2_authorization_id varchar(255) REFERENCES oauth2_authorization (id),
     PRIMARY KEY (scope_id, oauth2_authorization_id)
 );
+
 
 CREATE TABLE client_authentication_method
 (
@@ -229,14 +219,3 @@ CREATE TABLE client_authorization_grant_type
     authorization_grant_type_id bigint REFERENCES authorization_grant_type (id),
     PRIMARY KEY (client_id, authorization_grant_type_id)
 );
-
-
-
-
-
-
-
-
-
-
-
