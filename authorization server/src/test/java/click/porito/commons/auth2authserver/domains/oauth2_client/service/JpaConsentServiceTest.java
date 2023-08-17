@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -168,7 +169,7 @@ class JpaConsentServiceTest {
 
             //when
             assertThrows(
-                    DataRetrievalFailureException.class,
+                    EmptyResultDataAccessException.class,
                     () -> jpaConsentService.remove(oAuth2AuthorizationConsent)
             );
         }

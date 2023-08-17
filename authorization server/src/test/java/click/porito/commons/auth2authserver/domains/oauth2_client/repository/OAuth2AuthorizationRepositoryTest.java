@@ -10,10 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static test_util.TestEntityFactory.*;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
@@ -35,10 +35,10 @@ class OAuth2AuthorizationRepositoryTest {
     @BeforeEach
     void staticDataSetUp(){
         //static data
-        scope = new ScopeEntity("http://localhost/test", "test");
-        roleEntity = RoleEntity.ofUser("USER", RoleEntity.DEFAULT_USER_PRIORITY);
-        method = ClientAuthenticationMethodEntity.of(ClientAuthenticationMethod.CLIENT_SECRET_JWT);
-        grantType = AuthorizationGrantTypeEntity.from(AuthorizationGrantType.JWT_BEARER);
+        scope = getScopeEntity();
+        roleEntity = getRoleEntity();
+        method = getClientAuthenticationMethodEntity();
+        grantType = getAuthorizationGrantTypeEntity();
         em.persist(scope);
         em.persist(roleEntity);
         em.persist(method);

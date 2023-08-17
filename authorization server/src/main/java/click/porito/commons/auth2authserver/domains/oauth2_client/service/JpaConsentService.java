@@ -12,6 +12,7 @@ import click.porito.commons.auth2authserver.domains.resource_owner.repository.Re
 import click.porito.commons.auth2authserver.domains.resource_owner.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -85,8 +86,8 @@ public class JpaConsentService implements OAuth2AuthorizationConsentService {
 
 
         Long deleteCount = consentRepository.deleteByClientIdAndResourceOwnerId(registeredClientId, principalId);
-        if (deleteCount < 1) {
-            throw new DataRetrievalFailureException("consent not found");
+        if (deleteCount != 1) {
+            throw new EmptyResultDataAccessException("none exist consent",1);
         }
     }
 
