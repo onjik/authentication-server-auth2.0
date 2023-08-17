@@ -15,7 +15,7 @@ import org.springframework.lang.NonNull;
 @Entity @Table(name = "role")
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id", "name"})
 @NoArgsConstructor
 public class RoleEntity {
     public static final short MAX_PRIORITY = Short.MAX_VALUE -1;

@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 })
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id"})
 @NoArgsConstructor
 public class OAuth2AuthorizationConsentEntity {
 

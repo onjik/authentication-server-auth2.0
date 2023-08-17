@@ -6,7 +6,7 @@ import lombok.*;
 @Entity @Table(name = "redirect_uri")
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id","uri"})
 @NoArgsConstructor
 public class RedirectUriEntity {
 

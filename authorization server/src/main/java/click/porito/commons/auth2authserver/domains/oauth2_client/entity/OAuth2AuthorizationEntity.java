@@ -46,7 +46,7 @@ public class OAuth2AuthorizationEntity {
 
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "authorization",cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CommonTokenEntity> tokens = new HashSet<>();
+    private List<CommonTokenEntity> tokens = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "authorization_scope",

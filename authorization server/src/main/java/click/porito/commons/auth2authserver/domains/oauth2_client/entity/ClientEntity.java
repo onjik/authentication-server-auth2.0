@@ -15,15 +15,13 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity @Table(name = "client")
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id","clientId"})
 @NoArgsConstructor
 public class ClientEntity {
 
@@ -58,7 +56,7 @@ public class ClientEntity {
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY,
         cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RedirectUriEntity> redirectUris = new HashSet<>();
+    private List<RedirectUriEntity> redirectUris = new ArrayList<>(4);
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "client_scope",

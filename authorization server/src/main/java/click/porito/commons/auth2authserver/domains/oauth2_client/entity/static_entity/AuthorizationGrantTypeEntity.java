@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
  */
 @ConstantEntity
 @Entity @Table(name = "authorization_grant_type")
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id", "name"})
 @Getter @Setter
 @NoArgsConstructor
 public class AuthorizationGrantTypeEntity {

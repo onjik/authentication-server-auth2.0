@@ -10,12 +10,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity @Table(name = "resource_owner")
 @Getter
-@Setter @EqualsAndHashCode(of = "id")
+@Setter @EqualsAndHashCode(of = {"id","email"})
 @NoArgsConstructor
 public class ResourceOwnerEntity {
 
@@ -50,7 +52,7 @@ public class ResourceOwnerEntity {
     private boolean disabled;
 
     @OneToMany(mappedBy = "resourceOwner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CredentialEntity> credentials = new HashSet<>();
+    private List<CredentialEntity> credentials = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "resource_owner_role",

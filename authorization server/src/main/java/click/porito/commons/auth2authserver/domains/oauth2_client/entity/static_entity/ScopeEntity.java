@@ -8,7 +8,7 @@ import lombok.*;
 @Entity @Table(name = "scope")
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id","name"})
 @NoArgsConstructor
 public class ScopeEntity {
 

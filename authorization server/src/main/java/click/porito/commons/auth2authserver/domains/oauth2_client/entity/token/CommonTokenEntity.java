@@ -10,19 +10,20 @@ import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Entity @Table(name = "token")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 public abstract class CommonTokenEntity {
 
-    public static final Map<String,Object> DEFAULT_METADATA = Map.of(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, false);
+    public static final Map<String,Object> DEFAULT_METADATA = Collections.singletonMap(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, false);
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "token_id")
@@ -45,6 +46,19 @@ public abstract class CommonTokenEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "oauth2_authorization_id", nullable = false)
     private OAuth2AuthorizationEntity authorization;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommonTokenEntity entity = (CommonTokenEntity) o;
+        return getId().equals(entity.getId()) && getValue().equals(entity.getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getValue());
+    }
 
     public abstract Object toObject();
 

@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 @Entity @Table(name = "authentication_method")
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"id", "name"})
 @NoArgsConstructor
 public class ClientAuthenticationMethodEntity {
 
