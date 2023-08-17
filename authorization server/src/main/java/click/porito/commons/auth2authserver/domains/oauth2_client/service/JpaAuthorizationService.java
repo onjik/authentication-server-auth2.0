@@ -4,9 +4,11 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientE
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.OAuth2AuthorizationEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.*;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.AccessTokenEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.AuthorizationCodeEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.OidcIdTokenEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.RefreshTokenEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthorizationGrantTypeRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.CommonTokenRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.OAuth2AuthorizationRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
@@ -34,9 +36,6 @@ public class JpaAuthorizationService implements OAuth2AuthorizationService {
     private final EntityManager em;
 
     private final ScopeRepository scopeRepository;
-
-    private final CommonTokenRepository commonTokenRepository;
-
     private final OAuth2AuthorizationRepository authorizationRepository;
     private final AuthorizationGrantTypeRepository authorizationGrantTypeRepository;
 
@@ -65,24 +64,23 @@ public class JpaAuthorizationService implements OAuth2AuthorizationService {
     @Override
     public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
         Assert.hasText(token,"token must not be empty");
-        Assert.notNull(tokenType,"tokenType must not be null");
-
-        Class<? extends CommonTokenEntity> expectEntityType;
-
-        switch (tokenType.getValue()) {
-            case OAuth2ParameterNames.ACCESS_TOKEN -> expectEntityType = AccessTokenEntity.class;
-            case OAuth2ParameterNames.REFRESH_TOKEN -> expectEntityType = RefreshTokenEntity.class;
-            default -> {
-                return null;
-            }
+        Optional<OAuth2AuthorizationEntity> result;
+        if (tokenType == null) {
+            result = authorizationRepository.findByTokensValue(token).stream()
+                    .findFirst();
+        } else if (OAuth2ParameterNames.STATE.equals(tokenType.getValue())) {
+            result = this.authorizationRepository.findByState(token);
+        } else if (OAuth2ParameterNames.CODE.equals(tokenType.getValue())) {
+            result = this.authorizationRepository.findByTokensValueAndTokensInstance(token, AuthorizationCodeEntity.class);
+        } else if (OAuth2ParameterNames.ACCESS_TOKEN.equals(tokenType.getValue())) {
+            result = this.authorizationRepository.findByTokensValueAndTokensInstance(token, AccessTokenEntity.class);
+        } else if (OAuth2ParameterNames.REFRESH_TOKEN.equals(tokenType.getValue())) {
+            result = this.authorizationRepository.findByTokensValueAndTokensInstance(token, RefreshTokenEntity.class);
+        } else {
+            result = Optional.empty();
         }
 
-        Set<CommonTokenEntity> tokens = commonTokenRepository.findAllByValue(token);
-        return tokens.stream()
-                .filter(tokenEntity -> expectEntityType.isAssignableFrom(tokenEntity.getClass()))
-                .map(CommonTokenEntity::getAuthorization)
-                .map(OAuth2AuthorizationEntity::toObject)
-                .findFirst()
+        return result.map(OAuth2AuthorizationEntity::toObject)
                 .orElse(null);
     }
 

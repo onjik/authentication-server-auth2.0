@@ -64,7 +64,7 @@ class JpaAuthorizationServiceTest {
 
     @BeforeEach
     void setUp() {
-        authorizationService = new JpaAuthorizationService(em,scopeRepository,commonTokenRepository,oAuth2AuthorizationRepository,authorizationGrantTypeRepository);
+        authorizationService = new JpaAuthorizationService(em,scopeRepository,oAuth2AuthorizationRepository,authorizationGrantTypeRepository);
         ScopeEntity scopeEntity = getScopeEntity();
         ClientAuthenticationMethodEntity method = getClientAuthenticationMethodEntity();
         AuthorizationGrantTypeEntity grantType = getAuthorizationGrantTypeEntity();
