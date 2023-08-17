@@ -2,13 +2,14 @@ package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUriEntity;
-import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthenticationMethodRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthorizationGrantTypeRepository;
+import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
@@ -25,13 +24,11 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static test_util.TestEntityFactory.*;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
@@ -49,19 +46,27 @@ class JpaRegisteredRegisteredClientServiceTestEntity {
 
     @Autowired
     private AuthorizationGrantTypeRepository authorizationGrantTypeRepository;
+    @Autowired
+    private EntityManager em;
 
 
     private RegisteredClientRepository jpaRegisteredClientService;
+    private ClientEntity clientEntity;
 
     @BeforeEach
     void setUp() {
         jpaRegisteredClientService = new JpaRegisteredClientService(clientRepository, scopeRepository, authenticationMethodRepository, authorizationGrantTypeRepository);
-        ScopeEntity photo = new ScopeEntity("localhost:8080/photo", "photo");
-        scopeRepository.save(photo);
-        ClientAuthenticationMethodEntity clientAuthenticationMethodEntity = new ClientAuthenticationMethodEntity(ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue());
-        authenticationMethodRepository.save(clientAuthenticationMethodEntity);
-        AuthorizationGrantTypeEntity authorizationGrantTypeEntity = new AuthorizationGrantTypeEntity(AuthorizationGrantType.JWT_BEARER.getValue());
-        authorizationGrantTypeRepository.save(authorizationGrantTypeEntity);
+
+        //entity 초기화
+        ScopeEntity scope = getScopeEntity();
+        ClientAuthenticationMethodEntity method = getClientAuthenticationMethodEntity();
+        AuthorizationGrantTypeEntity grantType = getAuthorizationGrantTypeEntity();
+        em.persist(scope);
+        em.persist(method);
+        em.persist(grantType);
+
+        clientEntity = getClientEntity(scope, method, grantType);
+
 
     }
 
@@ -69,7 +74,7 @@ class JpaRegisteredRegisteredClientServiceTestEntity {
     @DisplayName("RegisteredClient 저장 테스트")
     void saveTest() {
         //given
-        RegisteredClient registeredClient = given();
+        RegisteredClient registeredClient = clientEntity.toObject();
 
         //when
         jpaRegisteredClientService.save(registeredClient);
@@ -109,7 +114,7 @@ class JpaRegisteredRegisteredClientServiceTestEntity {
     @DisplayName("findById 로 저장된 RegisteredClient 조회 테스트")
     void findById() {
         //given
-        RegisteredClient registeredClient = given();
+        RegisteredClient registeredClient = clientEntity.toObject();
         jpaRegisteredClientService.save(registeredClient);
 
         //when
@@ -124,7 +129,7 @@ class JpaRegisteredRegisteredClientServiceTestEntity {
     @Test
     void findByClientId() {
         //given
-        RegisteredClient registeredClient = given();
+        RegisteredClient registeredClient = clientEntity.toObject();
         jpaRegisteredClientService.save(registeredClient);
 
         //when
@@ -136,24 +141,5 @@ class JpaRegisteredRegisteredClientServiceTestEntity {
 
     }
 
-    private RegisteredClient given(){
-        ClientSettings clientSettings = ClientSettings.builder()
-                .requireAuthorizationConsent(true)
-                .build();
-        TokenSettings tokenSettings = TokenSettings.builder().accessTokenTimeToLive(Duration.ofDays(7)).build();
-        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("client")
-                .clientIdIssuedAt(Instant.now())
-                .clientSecret("secret")
-                .clientSecretExpiresAt(Instant.now())
-                .clientSettings(clientSettings)
-                .tokenSettings(tokenSettings)
-                .redirectUri("http://localhost:8080/authorized")
-                .scope("photo")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
-                .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
-                .build();
-        return registeredClient;
-    }
 
 }
