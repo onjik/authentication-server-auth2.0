@@ -5,9 +5,13 @@ import click.porito.commons.auth2authserver.domains.resource_owner.entity.Resour
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity @Table(name = "authorization_consent", uniqueConstraints = {
         @UniqueConstraint(name = "unique_consent", columnNames = {"client_id", "resource_owner_id"})
@@ -34,7 +38,7 @@ public class OAuth2AuthorizationConsentEntity {
     @JoinTable(name = "authorization_consent_role",
             joinColumns = @JoinColumn(name = "authorization_consent_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<RoleEntity> roleEntities = new HashSet<>();
+    private Set<RoleEntity> roles = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "authorization_consent_scope",
@@ -42,4 +46,27 @@ public class OAuth2AuthorizationConsentEntity {
             inverseJoinColumns = @JoinColumn(name = "scope_id"))
     private Set<ScopeEntity> scopes = new HashSet<>();
 
+    @Builder
+    public OAuth2AuthorizationConsentEntity(ClientEntity client, ResourceOwnerEntity resourceOwner) {
+        this.client = client;
+        this.resourceOwner = resourceOwner;
+    }
+
+    public OAuth2AuthorizationConsent toObject() {
+        //merge authorities
+        Set<SimpleGrantedAuthority> grantedAuthorities = Stream.of(this.roles, this.scopes)
+                .flatMap(Set::stream)
+                .map(object -> {
+                    if (object instanceof RoleEntity) {
+                        return String.format("ROLE_%s", ((RoleEntity) object).getName().toUpperCase());
+                    } else {
+                        return String.format("SCOPE_%s", ((ScopeEntity) object).getName().toUpperCase());
+                    }
+                })
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
+        return OAuth2AuthorizationConsent.withId(client.getId(), resourceOwner.getId())
+                .authorities(authoritySet -> authoritySet.addAll(grantedAuthorities))
+                .build();
+    }
 }

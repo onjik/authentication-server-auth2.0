@@ -1,6 +1,7 @@
 package test_util;
 
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
+import click.porito.commons.auth2authserver.domains.oauth2_client.entity.OAuth2AuthorizationConsentEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.OAuth2AuthorizationEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUriEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
@@ -23,6 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class TestEntityFactory {
@@ -166,6 +168,16 @@ public class TestEntityFactory {
     public static AuthorizationGrantTypeEntity getAuthorizationGrantTypeEntity() {
         AuthorizationGrantTypeEntity grantType = AuthorizationGrantTypeEntity.from(AuthorizationGrantType.JWT_BEARER);
         return grantType;
+    }
+
+    public static OAuth2AuthorizationConsentEntity getOAuth2AuthorizationConsentEntity(ResourceOwnerEntity resourceOwner, ClientEntity client, Set<RoleEntity> roleEntities, Set<ScopeEntity> scopeEntities) {
+        OAuth2AuthorizationConsentEntity entity = OAuth2AuthorizationConsentEntity.builder()
+                .resourceOwner(resourceOwner)
+                .client(client)
+                .build();
+        entity.getRoles().addAll(roleEntities);
+        entity.getScopes().addAll(scopeEntities);
+        return entity;
     }
 
 

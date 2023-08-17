@@ -86,7 +86,7 @@ public class JpaRegisteredClientService implements RegisteredClientRepository {
         // scopeEntities
         Set<ScopeEntity> scopeEntities = loadEntity(
                 registeredClient.getScopes(),
-                scopeRepository::findByNameIn,
+                scopeRepository::findByNameIgnoreCaseIn,
                 (scope, scopeEntity) -> scope.equals(scopeEntity.getName())
         );
         clientEntity.getScopes().addAll(scopeEntities);

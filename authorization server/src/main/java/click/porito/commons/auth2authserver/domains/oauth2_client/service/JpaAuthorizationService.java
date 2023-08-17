@@ -97,7 +97,7 @@ public class JpaAuthorizationService implements OAuth2AuthorizationService {
         AuthorizationGrantTypeEntity grantType = authorizationGrantTypeRepository.findByName(authorization.getAuthorizationGrantType().getValue())
                 .orElseThrow(() -> new DataRetrievalFailureException("grant type not found"));
 
-        Set<ScopeEntity> scopes = scopeRepository.findByNameIn(authorization.getAuthorizedScopes());
+        Set<ScopeEntity> scopes = scopeRepository.findByNameIgnoreCaseIn(authorization.getAuthorizedScopes());
         if (scopes.size() != authorization.getAuthorizedScopes().size()) {
             throw new DataRetrievalFailureException("scope not found");
         }

@@ -9,5 +9,5 @@ import java.util.Set;
 
 @Repository
 public interface ScopeRepository extends JpaRepository<ScopeEntity,Long> {
-    Set<ScopeEntity> findByNameIn(Collection<String> names);
+    Set<ScopeEntity> findByNameIgnoreCaseIn(Collection<String> names);
 }
