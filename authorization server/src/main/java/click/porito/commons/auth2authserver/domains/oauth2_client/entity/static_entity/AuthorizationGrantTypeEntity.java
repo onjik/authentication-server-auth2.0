@@ -2,6 +2,7 @@ package click.porito.commons.auth2authserver.domains.oauth2_client.entity.static
 
 import click.porito.commons.auth2authserver.global.util.ConstantEntity;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
  */
 @ConstantEntity
 @Entity @Table(name = "authorization_grant_type")
+@EqualsAndHashCode(of = "id")
 @Getter @Setter
 @NoArgsConstructor
 public class AuthorizationGrantTypeEntity {
@@ -25,6 +27,11 @@ public class AuthorizationGrantTypeEntity {
     @Column(name = "name", unique = true,
             length = 255, nullable = false)
     private String name;
+
+    @PrePersist
+    public void prePersist() {
+        this.name = this.name.toUpperCase();
+    }
 
 
     public AuthorizationGrantTypeEntity(String name) {

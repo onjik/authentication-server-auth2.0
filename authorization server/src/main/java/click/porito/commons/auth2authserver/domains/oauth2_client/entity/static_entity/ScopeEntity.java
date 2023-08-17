@@ -8,6 +8,7 @@ import lombok.*;
 @Entity @Table(name = "scope")
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 public class ScopeEntity {
 
@@ -23,6 +24,11 @@ public class ScopeEntity {
     @Column(name = "name", unique = true,
             length = 255, nullable = false)
     private String name;
+
+    @PrePersist
+    public void prePersist() {
+        this.name = this.name.toUpperCase();
+    }
 
     public String getScopePrefixedName() {
         return SCOPE_PREFIX + name;

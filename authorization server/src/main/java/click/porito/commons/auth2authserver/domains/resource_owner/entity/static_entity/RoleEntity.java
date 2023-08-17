@@ -38,7 +38,12 @@ public class RoleEntity {
     @Column(name = "priority") //default 0 (on db)
     private short priority;
 
-
+    @PrePersist
+    void prePersist() {
+        if (this.name != null) {
+            this.name = this.name.toUpperCase();
+        }
+    }
 
     public static RoleEntity ofDefaultPriorityUser(@NonNull String name) {
         RoleEntity roleEntity = new RoleEntity();

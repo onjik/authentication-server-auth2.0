@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 @Entity @Table(name = "authentication_method")
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 public class ClientAuthenticationMethodEntity {
 
@@ -23,6 +24,11 @@ public class ClientAuthenticationMethodEntity {
     @Column(name = "name", unique = true,
             length = 255, nullable = false)
     private String name;
+
+    @PrePersist
+    public void prePersist() {
+        this.name = this.name.toUpperCase();
+    }
 
     public ClientAuthenticationMethodEntity(String name) {
         this.name = name;
