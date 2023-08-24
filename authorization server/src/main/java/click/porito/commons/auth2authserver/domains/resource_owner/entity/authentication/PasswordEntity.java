@@ -11,7 +11,7 @@ import java.time.Instant;
 @PrimaryKeyJoinColumn(name = "authentication_id")
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(of = "value",callSuper = true)
 @NoArgsConstructor
 public class PasswordEntity extends AuthenticationEntity {
 

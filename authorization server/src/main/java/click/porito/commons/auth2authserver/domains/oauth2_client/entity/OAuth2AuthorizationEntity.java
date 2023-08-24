@@ -65,25 +65,25 @@ public class OAuth2AuthorizationEntity {
     }
 
     public void addToken(CommonTokenEntity token) {
-        this.tokens.add(token);
+        getTokens().add(token);
         token.setAuthorization(this);
     }
 
     public void addScope(ScopeEntity scope) {
-        this.scopes.add(scope);
+        getScopes().add(scope);
     }
 
     public OAuth2Authorization toObject() {
-        OAuth2Authorization.Builder builder = OAuth2Authorization.withRegisteredClient(this.client.toObject())
-                .id(this.id)
-                .principalName(this.resourceOwner.getId())
-                .authorizationGrantType(new AuthorizationGrantType(this.authorizationGrantType.getName()))
-                .authorizedScopes(this.scopes.stream()
+        OAuth2Authorization.Builder builder = OAuth2Authorization.withRegisteredClient(getClient().toObject())
+                .id(getId())
+                .principalName(getResourceOwner().getId())
+                .authorizationGrantType(new AuthorizationGrantType(getAuthorizationGrantType().getName()))
+                .authorizedScopes(getScopes().stream()
                         .map(ScopeEntity::getName)
                         .collect(Collectors.toSet())
                 )
                 .attributes(attributeMap -> {
-                    attributeMap.putAll(this.attribute);
+                    attributeMap.putAll(getAttribute());
                 });
 
         tokens.stream()

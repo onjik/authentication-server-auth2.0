@@ -2,12 +2,14 @@ package click.porito.commons.auth2authserver.domains.resource_owner.entity.stati
 
 import click.porito.commons.auth2authserver.global.util.ConstantEntity;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
+
+import java.util.Objects;
 
 /**
  * <p>Usage Example</p>
@@ -19,8 +21,7 @@ import org.springframework.util.Assert;
 @Entity @Table(name = "role")
 @Getter
 @Setter
-@EqualsAndHashCode(of = {"id", "name"})
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoleEntity implements GrantedAuthority {
     public static final String ROLE_PREFIX = "ROLE_";
 
@@ -43,11 +44,26 @@ public class RoleEntity implements GrantedAuthority {
     }
 
     public RoleEntity(String name) {
-        this.name = name;
+        Assert.isTrue(name.startsWith(ROLE_PREFIX), "Role name must start with ROLE_ prefix");
+        this.name = name.toUpperCase();
     }
 
     @Override
     public String getAuthority() {
         return this.getName();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoleEntity that = (RoleEntity) o;
+        return getName().equals(that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 }

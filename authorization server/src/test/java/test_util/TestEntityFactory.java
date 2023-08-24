@@ -10,7 +10,7 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.AccessTokenEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.RefreshTokenEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.credential.AccountEntity;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.authentication.AccountEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import jakarta.persistence.EntityManager;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;

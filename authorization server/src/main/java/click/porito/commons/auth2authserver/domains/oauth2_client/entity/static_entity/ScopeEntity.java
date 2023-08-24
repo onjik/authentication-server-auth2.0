@@ -2,19 +2,20 @@ package click.porito.commons.auth2authserver.domains.oauth2_client.entity.static
 
 import click.porito.commons.auth2authserver.global.util.ConstantEntity;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
+import java.util.Objects;
+
 @ConstantEntity
 @Entity @Table(name = "scope")
 @Getter
 @Setter
-@EqualsAndHashCode(of = {"id","name"})
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ScopeEntity implements GrantedAuthority {
 
     public static final String SCOPE_PREFIX = "SCOPE_";
@@ -39,13 +40,31 @@ public class ScopeEntity implements GrantedAuthority {
         }
     }
 
+    /**
+     * @param uriEndpoint : uri endpoint (ex: "http://localhost:8080/api/v1")
+     * @param name : prefixed scope name (ex: "SCOPE_READ")
+     */
     public ScopeEntity(String uriEndpoint, String name) {
+        Assert.isTrue(name.startsWith(SCOPE_PREFIX), "Scope name must start with SCOPE_ prefix");
         this.uriEndpoint = uriEndpoint;
-        this.name = name;
+        this.name = name.toUpperCase();
     }
 
     @Override
     public String getAuthority() {
         return this.getName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScopeEntity that = (ScopeEntity) o;
+        return getName().equals(that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 }

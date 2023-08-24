@@ -52,12 +52,12 @@ public abstract class CommonTokenEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CommonTokenEntity entity = (CommonTokenEntity) o;
-        return getId().equals(entity.getId()) && getValue().equals(entity.getValue());
+        return getValue().equals(entity.getValue());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getValue());
+        return Objects.hash(getValue());
     }
 
     public abstract Object toObject();

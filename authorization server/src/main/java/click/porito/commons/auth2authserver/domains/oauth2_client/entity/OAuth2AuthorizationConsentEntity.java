@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 })
 @Getter
 @Setter
-@EqualsAndHashCode(of = {"id"})
+@EqualsAndHashCode(of = {"client", "resourceOwner"})
 @NoArgsConstructor
 public class OAuth2AuthorizationConsentEntity {
 
@@ -26,11 +26,11 @@ public class OAuth2AuthorizationConsentEntity {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
     private ClientEntity client;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
     private ResourceOwnerEntity resourceOwner;
 
@@ -50,6 +50,14 @@ public class OAuth2AuthorizationConsentEntity {
     public OAuth2AuthorizationConsentEntity(ClientEntity client, ResourceOwnerEntity resourceOwner) {
         this.client = client;
         this.resourceOwner = resourceOwner;
+    }
+
+    public void addRole(RoleEntity role) {
+        getRoles().add(role);
+    }
+
+    public void addScope(ScopeEntity scope) {
+        getScopes().add(scope);
     }
 
     public OAuth2AuthorizationConsent toObject() {

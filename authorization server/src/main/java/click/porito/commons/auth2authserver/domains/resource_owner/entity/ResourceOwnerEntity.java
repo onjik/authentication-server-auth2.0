@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity @Table(name = "resource_owner")
 @Getter
@@ -32,7 +32,7 @@ public class ResourceOwnerEntity {
     @JoinTable(name = "resource_owner_role",
             joinColumns = @JoinColumn(name = "resource_owner_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<RoleEntity> roleEntities = new ArrayList<>();
+    private Set<RoleEntity> roleEntities = new HashSet<>();
 
     public ResourceOwnerEntity(String name, Gender gender) {
         this.name = name;
@@ -40,7 +40,7 @@ public class ResourceOwnerEntity {
     }
 
     public void addRole(RoleEntity roleEntity) {
-        roleEntities.add(roleEntity);
+        getRoleEntities().add(roleEntity);
     }
 
     public enum Gender {

@@ -28,7 +28,7 @@ public class AuthorizationCodeEntity extends CommonTokenEntity {
 
     @Override
     public Class<? extends OAuth2Token> obtainObjectType() {
-        return null;
+        return OAuth2AuthorizationCode.class;
     }
 
     @Builder

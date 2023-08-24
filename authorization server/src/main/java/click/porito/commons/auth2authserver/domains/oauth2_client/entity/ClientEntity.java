@@ -90,20 +90,20 @@ public class ClientEntity {
     }
 
     public void addRedirectUri(RedirectUriEntity redirectUriEntity){
-        this.redirectUris.add(redirectUriEntity);
+        getRedirectUris().add(redirectUriEntity);
         redirectUriEntity.setClient(this);
     }
 
     public void addScope(ScopeEntity scopeEntity) {
-        this.scopes.add(scopeEntity);
+        getScopes().add(scopeEntity);
     }
 
     public void addClientAuthenticationMethod(ClientAuthenticationMethodEntity clientAuthenticationMethodEntity){
-        this.clientAuthenticationMethods.add(clientAuthenticationMethodEntity);
+        getClientAuthenticationMethods().add(clientAuthenticationMethodEntity);
     }
 
     public void addAuthorizationGrantType(AuthorizationGrantTypeEntity authorizationGrantTypeEntity){
-        this.authorizationGrantTypes.add(authorizationGrantTypeEntity);
+        getAuthorizationGrantTypes().add(authorizationGrantTypeEntity);
     }
 
     public RegisteredClient toObject(){
@@ -112,7 +112,7 @@ public class ClientEntity {
                 .map(AuthorizationGrantType::new)
                 .collect(Collectors.toSet());
         // column mapping
-        return RegisteredClient.withId(this.getId().toString())
+        return RegisteredClient.withId(this.getId())
                 .clientId(this.getClientId())
                 .clientIdIssuedAt(this.getClientIdIssuedAt())
                 .clientName(this.getClientName())

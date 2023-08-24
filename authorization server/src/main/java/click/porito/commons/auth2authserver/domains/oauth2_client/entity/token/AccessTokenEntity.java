@@ -26,7 +26,7 @@ public class AccessTokenEntity extends CommonTokenEntity {
     @Column(name = "token_type", nullable = false)
     private String tokenType;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "access_token_scope",
             joinColumns = @JoinColumn(name = "token_id"),
             inverseJoinColumns = @JoinColumn(name = "scope_id"))
@@ -44,7 +44,7 @@ public class AccessTokenEntity extends CommonTokenEntity {
     }
 
     public void addScope(ScopeEntity scopeEntity){
-        this.scopes.add(scopeEntity);
+        getScopes().add(scopeEntity);
     }
 
     @Builder
