@@ -2,7 +2,12 @@ package click.porito.commons.auth2authserver.domains.oauth2_client.entity.static
 
 import click.porito.commons.auth2authserver.global.util.ConstantEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 @ConstantEntity
 @Entity @Table(name = "scope")
@@ -10,7 +15,7 @@ import lombok.*;
 @Setter
 @EqualsAndHashCode(of = {"id","name"})
 @NoArgsConstructor
-public class ScopeEntity {
+public class ScopeEntity implements GrantedAuthority {
 
     public static final String SCOPE_PREFIX = "SCOPE_";
 
@@ -27,15 +32,20 @@ public class ScopeEntity {
 
     @PrePersist
     public void prePersist() {
+        Assert.notNull(this.name, "Scope name must not be null");
         this.name = this.name.toUpperCase();
-    }
-
-    public String getScopePrefixedName() {
-        return SCOPE_PREFIX + name;
+        if (!this.name.startsWith(SCOPE_PREFIX)) {
+            this.name = SCOPE_PREFIX + this.name;
+        }
     }
 
     public ScopeEntity(String uriEndpoint, String name) {
         this.uriEndpoint = uriEndpoint;
         this.name = name;
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.getName();
     }
 }

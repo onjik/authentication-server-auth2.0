@@ -23,8 +23,6 @@ CREATE TABLE role
 (
     id            bigserial PRIMARY KEY,
     name          varchar(255) NOT NULL,
-    is_super_user bool     DEFAULT FALSE,
-    priority      smallint DEFAULT 0,
     CONSTRAINT unique_role_name UNIQUE (name)
 );
 
@@ -68,26 +66,32 @@ CREATE TABLE resource_owner
     id          varchar(50) PRIMARY KEY,
     name        varchar(255) NOT NULL,
     gender      char(1)      NOT NULL,
-    email       varchar(255) NOT NULL,
-    created_at  timestamp DEFAULT NOW(),
-    expires_at  timestamp DEFAULT NULL,
-    is_locked   bool      DEFAULT FALSE,
-    is_disabled bool      DEFAULT FALSE,
-    CONSTRAINT unique_email UNIQUE (email)
+    created_at  timestamp DEFAULT NOW()
 );
 
-
-CREATE TABLE credential
+CREATE TABLE account
 (
-    id                bigserial PRIMARY KEY,
-    credential_type   varchar(255) NOT NULL,
-    resource_owner_id varchar(50)  NOT NULL REFERENCES resource_owner (id)
+    resource_owner_id varchar(50) PRIMARY KEY REFERENCES resource_owner(id),
+    email varchar(255) NOT NULL ,
+    is_email_verified bool DEFAULT FALSE,
+    is_locked bool DEFAULT FALSE,
+    is_disabled bool DEFAULT FALSE,
+    expires_at timestamp DEFAULT NULL,
+    CONSTRAINT email_unique UNIQUE (email)
+);
+
+CREATE TABLE authentication
+(
+    id                  bigserial PRIMARY KEY,
+    authentication_type varchar(255) NOT NULL,
+    account_id          varchar(255) NOT NULL REFERENCES account (resource_owner_id),
+    UNIQUE (authentication_type, account_id)
 );
 
 
 CREATE TABLE password
 (
-    credential_id  bigint PRIMARY KEY REFERENCES credential (id),
+    authentication_id  bigint PRIMARY KEY REFERENCES authentication (id),
     password_value varchar(255) NOT NULL,
     issued_at      timestamp DEFAULT NOW(),
     expires_at     timestamp DEFAULT NULL
@@ -100,7 +104,7 @@ CREATE TABLE authorization_consent
     id                bigserial PRIMARY KEY,
     client_id         varchar(255) NOT NULL REFERENCES client (id),
     resource_owner_id varchar(50)  NOT NULL REFERENCES resource_owner (id),
-    CONSTRAINT unique_consent UNIQUE (client_id, resource_owner_id)
+    UNIQUE (client_id, resource_owner_id)
 );
 
 CREATE TABLE oauth2_authorization
@@ -153,11 +157,6 @@ CREATE TABLE oidc_id_token
 );
 
 
-
-
-
-
-
 /*
  mapping tables
  M:N 관계를 표현하기 위한 테이블들
@@ -172,9 +171,9 @@ CREATE TABLE resource_owner_role
 
 CREATE TABLE authorization_consent_role
 (
-    role_id                  bigint REFERENCES role (id),
-    authorization_consent_id bigint REFERENCES authorization_consent (id),
-    PRIMARY KEY (role_id,authorization_consent_id)
+    role_id           bigint REFERENCES role (id),
+    authorization_consent_id bigint REFERENCES authorization_consent(id),
+    PRIMARY KEY (role_id, authorization_consent_id)
 );
 
 CREATE TABLE access_token_scope
@@ -194,7 +193,7 @@ CREATE TABLE client_scope
 CREATE TABLE authorization_consent_scope
 (
     scope_id                 bigint REFERENCES scope (id),
-    authorization_consent_id bigint REFERENCES authorization_consent (id),
+    authorization_consent_id bigint REFERENCES authorization_consent(id),
     PRIMARY KEY (scope_id, authorization_consent_id)
 );
 

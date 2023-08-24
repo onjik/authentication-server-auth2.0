@@ -2,8 +2,12 @@ package click.porito.commons.auth2authserver.domains.resource_owner.entity.stati
 
 import click.porito.commons.auth2authserver.global.util.ConstantEntity;
 import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.lang.NonNull;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * <p>Usage Example</p>
@@ -17,11 +21,7 @@ import org.springframework.lang.NonNull;
 @Setter
 @EqualsAndHashCode(of = {"id", "name"})
 @NoArgsConstructor
-public class RoleEntity {
-    public static final short MAX_PRIORITY = Short.MAX_VALUE -1;
-    public static final short MIN_PRIORITY = Short.MIN_VALUE +1;
-    public static final short LOWEST_ADMIN_PRIORITY = 20_000;
-    public static final short DEFAULT_USER_PRIORITY = 0;
+public class RoleEntity implements GrantedAuthority {
     public static final String ROLE_PREFIX = "ROLE_";
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,55 +32,22 @@ public class RoleEntity {
             length = 255, nullable = true)
     private String name;
 
-    @Column(name = "is_super_user") //default false (on db)
-    private boolean isAdmin;
-
-    @Column(name = "priority") //default 0 (on db)
-    private short priority;
 
     @PrePersist
     void prePersist() {
-        if (this.name != null) {
-            this.name = this.name.toUpperCase();
+        Assert.notNull(this.name, "Role name must not be null");
+        this.name = this.name.toUpperCase();
+        if (!this.name.startsWith(ROLE_PREFIX)) {
+            this.name = ROLE_PREFIX + this.name;
         }
     }
 
-    public static RoleEntity ofDefaultPriorityUser(@NonNull String name) {
-        RoleEntity roleEntity = new RoleEntity();
-        roleEntity.setName(name);
-        roleEntity.setAdmin(false);
-        roleEntity.setPriority(DEFAULT_USER_PRIORITY);
-        return roleEntity;
+    public RoleEntity(String name) {
+        this.name = name;
     }
 
-    public static RoleEntity ofUser(@NonNull String name, short priority) {
-        if (priority >= LOWEST_ADMIN_PRIORITY) {
-            priority = LOWEST_ADMIN_PRIORITY -1;
-        }
-        RoleEntity roleEntity = new RoleEntity();
-        roleEntity.setName(name);
-        roleEntity.setAdmin(false);
-        roleEntity.setPriority(priority);
-        return roleEntity;
+    @Override
+    public String getAuthority() {
+        return this.getName();
     }
-
-    public static RoleEntity ofAdmin(@NonNull String name) {
-        RoleEntity roleEntity = new RoleEntity();
-        roleEntity.setName(name);
-        roleEntity.setAdmin(true);
-        roleEntity.setPriority(LOWEST_ADMIN_PRIORITY);
-        return roleEntity;
-    }
-
-    public static RoleEntity ofAdmin(@NonNull String name, short priority) {
-        if (priority < LOWEST_ADMIN_PRIORITY) {
-            priority = LOWEST_ADMIN_PRIORITY;
-        }
-        RoleEntity roleEntity = new RoleEntity();
-        roleEntity.setName(name);
-        roleEntity.setAdmin(true);
-        roleEntity.setPriority(priority);
-        return roleEntity;
-    }
-
 }

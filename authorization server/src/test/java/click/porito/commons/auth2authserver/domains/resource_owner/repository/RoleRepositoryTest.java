@@ -32,7 +32,6 @@ class RoleRepositoryTest {
         //then
         assertEquals(originalEntity.getId(),resultEntity.getId());
         assertEquals(originalEntity.getName(), resultEntity.getName());
-        assertEquals(originalEntity.getPriority(), resultEntity.getPriority());
     }
 
 }

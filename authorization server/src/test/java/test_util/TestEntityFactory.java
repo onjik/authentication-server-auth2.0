@@ -10,7 +10,7 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.AccessTokenEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.RefreshTokenEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.credential.PasswordEntity;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.credential.AccountEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import jakarta.persistence.EntityManager;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -65,19 +65,14 @@ public class TestEntityFactory {
         return clientEntity;
     }
 
+    public static AccountEntity getAccountEntity(ResourceOwnerEntity resourceOwnerEntity) {
+        return AccountEntity.builder("test@gmail.com", resourceOwnerEntity).build();
+    }
+
     public static ResourceOwnerEntity getResourceOwnerEntity(RoleEntity roleEntity) {
         //resource owner
-        ResourceOwnerEntity resourceOwner = ResourceOwnerEntity.builder()
-                .name("name")
-                .gender(ResourceOwnerEntity.Gender.MAN)
-                .email("email")
-                .expiresAt(Instant.now().plus(Duration.ofDays(180)))
-                .build();
-
-        PasswordEntity password = new PasswordEntity(resourceOwner, "password", Instant.now(), Instant.now().plus(Duration.ofDays(180)));
-        resourceOwner.addCredential(password);
+        ResourceOwnerEntity resourceOwner = new ResourceOwnerEntity("name", ResourceOwnerEntity.Gender.MAN);
         resourceOwner.addRole(roleEntity);
-
         return resourceOwner;
     }
 
@@ -107,7 +102,7 @@ public class TestEntityFactory {
     }
 
     public static RoleEntity getRoleEntity() {
-        return RoleEntity.ofUser("USER", RoleEntity.DEFAULT_USER_PRIORITY);
+        return new RoleEntity("ROLE_USER");
     }
 
     public static OAuth2AuthorizationEntity getSavedOAuth2AuthorizationEntity(EntityManager em) {
@@ -161,7 +156,7 @@ public class TestEntityFactory {
 
 
         public static ScopeEntity getScopeEntity() {
-        return new ScopeEntity("http://localhost:8080/api/v1/users/name", "user_name");
+        return new ScopeEntity("http://localhost:8080/api/v1/users/name", "SCOPE_USER_NAME");
     }
 
 

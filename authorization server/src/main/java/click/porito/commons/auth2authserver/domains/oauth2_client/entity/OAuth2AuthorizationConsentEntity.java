@@ -5,7 +5,7 @@ import click.porito.commons.auth2authserver.domains.resource_owner.entity.Resour
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 
 import java.util.HashSet;
@@ -54,18 +54,11 @@ public class OAuth2AuthorizationConsentEntity {
 
     public OAuth2AuthorizationConsent toObject() {
         //merge authorities
-        Set<SimpleGrantedAuthority> grantedAuthorities = Stream.of(this.roles, this.scopes)
+        Set<GrantedAuthority> grantedAuthorities = Stream.of(getRoles(), getScopes())
                 .flatMap(Set::stream)
-                .map(object -> {
-                    if (object instanceof RoleEntity) {
-                        return String.format("ROLE_%s", ((RoleEntity) object).getName().toUpperCase());
-                    } else {
-                        return String.format("SCOPE_%s", ((ScopeEntity) object).getName().toUpperCase());
-                    }
-                })
-                .map(SimpleGrantedAuthority::new)
+                .map(GrantedAuthority.class::cast)
                 .collect(Collectors.toSet());
-        return OAuth2AuthorizationConsent.withId(client.getId(), resourceOwner.getId())
+        return OAuth2AuthorizationConsent.withId(getClient().getId(), getResourceOwner().getId())
                 .authorities(authoritySet -> authoritySet.addAll(grantedAuthorities))
                 .build();
     }

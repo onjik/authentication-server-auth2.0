@@ -50,7 +50,6 @@ public class JpaConsentService implements OAuth2AuthorizationConsentService {
         Set<String> scopeNames = authorizationConsent.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .filter(grantedAuthority -> grantedAuthority.startsWith(SCOPE_PREFIX))
-                .map(grantedAuthority -> grantedAuthority.substring(SCOPE_PREFIX.length()))
                 .collect(Collectors.toSet());
         Set<ScopeEntity> scopeEntities = scopeRepository.findByNameIgnoreCaseIn(scopeNames);
         if (scopeEntities.size() != scopeNames.size()) {
@@ -60,7 +59,6 @@ public class JpaConsentService implements OAuth2AuthorizationConsentService {
         Set<String> roleNames = authorizationConsent.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .filter(grantedAuthority -> grantedAuthority.startsWith(ROLE_PREFIX))
-                .map(grantedAuthority -> grantedAuthority.substring(ROLE_PREFIX.length()))
                 .collect(Collectors.toSet());
         Set<RoleEntity> roleEntities = roleRepository.findByNameIgnoreCaseIn(roleNames);
         if (roleEntities.size() != roleNames.size()) {
