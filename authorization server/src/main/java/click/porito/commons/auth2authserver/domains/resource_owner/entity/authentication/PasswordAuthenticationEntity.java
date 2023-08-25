@@ -13,7 +13,7 @@ import java.time.Instant;
 @Setter
 @EqualsAndHashCode(of = "value",callSuper = true)
 @NoArgsConstructor
-public class PasswordEntity extends AuthenticationEntity {
+public class PasswordAuthenticationEntity extends AuthenticationEntity {
 
     @Column(name = "password_value", nullable = false)
     private String value;
@@ -25,14 +25,14 @@ public class PasswordEntity extends AuthenticationEntity {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
-    public static PasswordEntityBuilder builder(AccountEntity accountEntity, String value) {
-        return new PasswordEntityBuilder()
+    public static PasswordAuthenticationEntityBuilder builder(AccountEntity accountEntity, String value) {
+        return new PasswordAuthenticationEntityBuilder()
                 .accountEntity(accountEntity)
                 .value(value);
     }
 
     @Builder
-    public PasswordEntity(AccountEntity accountEntity, String value, Instant expiresAt) {
+    public PasswordAuthenticationEntity(AccountEntity accountEntity, String value, Instant expiresAt) {
         super(accountEntity);
         this.value = value;
         this.expiresAt = expiresAt;

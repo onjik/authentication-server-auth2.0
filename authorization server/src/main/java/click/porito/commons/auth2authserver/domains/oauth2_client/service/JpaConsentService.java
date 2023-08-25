@@ -1,5 +1,6 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
+import click.porito.commons.auth2authserver.common.util.RepositoryHolder;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.OAuth2AuthorizationConsentEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
@@ -16,42 +17,36 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component
 @RequiredArgsConstructor
 public class JpaConsentService implements OAuth2AuthorizationConsentService {
 
     private final static String ROLE_PREFIX = "ROLE_";
     private final static String SCOPE_PREFIX = "SCOPE_";
 
-    private final ConsentRepository consentRepository;
-    private final ClientRepository clientRepository;
-    private final ResourceOwnerRepository resourceOwnerRepository;
-    private final RoleRepository roleRepository;
-    private final ScopeRepository scopeRepository;
+    private final RepositoryHolder repositoryHolder;
 
     @Override
     public void save(OAuth2AuthorizationConsent authorizationConsent) {
         Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
         //load properties
         String registeredClientId = authorizationConsent.getRegisteredClientId();
-        ClientEntity clientEntity = clientRepository.findById(registeredClientId)
+        ClientEntity clientEntity = repositoryHolder.getRepository(ClientRepository.class).findById(registeredClientId)
                 .orElseThrow(() -> new DataRetrievalFailureException("client not found"));
         String principalId = authorizationConsent.getPrincipalName();
-        ResourceOwnerEntity resourceOwnerEntity = resourceOwnerRepository.findById(principalId)
+        ResourceOwnerEntity resourceOwnerEntity = repositoryHolder.getRepository(ResourceOwnerRepository.class).findById(principalId)
                 .orElseThrow(() -> new DataRetrievalFailureException("resourceOwner not found"));
 
         Set<String> scopeNames = authorizationConsent.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .filter(grantedAuthority -> grantedAuthority.startsWith(SCOPE_PREFIX))
                 .collect(Collectors.toSet());
-        Set<ScopeEntity> scopeEntities = scopeRepository.findByNameIgnoreCaseIn(scopeNames);
+        Set<ScopeEntity> scopeEntities = repositoryHolder.getRepository(ScopeRepository.class).findByNameIgnoreCaseIn(scopeNames);
         if (scopeEntities.size() != scopeNames.size()) {
             throw new DataRetrievalFailureException("scope not found");
         }
@@ -60,7 +55,7 @@ public class JpaConsentService implements OAuth2AuthorizationConsentService {
                 .map(GrantedAuthority::getAuthority)
                 .filter(grantedAuthority -> grantedAuthority.startsWith(ROLE_PREFIX))
                 .collect(Collectors.toSet());
-        Set<RoleEntity> roleEntities = roleRepository.findByNameIgnoreCaseIn(roleNames);
+        Set<RoleEntity> roleEntities = repositoryHolder.getRepository(RoleRepository.class).findByNameIgnoreCaseIn(roleNames);
         if (roleEntities.size() != roleNames.size()) {
             throw new DataRetrievalFailureException("role not found");
         }
@@ -71,7 +66,7 @@ public class JpaConsentService implements OAuth2AuthorizationConsentService {
         consentEntity.getScopes().addAll(scopeEntities);
 
         //persist
-        consentRepository.save(consentEntity);
+        repositoryHolder.getRepository(ConsentRepository.class).save(consentEntity);
     }
 
     @Override
@@ -83,7 +78,8 @@ public class JpaConsentService implements OAuth2AuthorizationConsentService {
         Assert.notNull(principalId, "principalId cannot be null");
 
 
-        Long deleteCount = consentRepository.deleteByClientIdAndResourceOwnerId(registeredClientId, principalId);
+        Long deleteCount = repositoryHolder.getRepository(ConsentRepository.class)
+                .deleteByClientIdAndResourceOwnerId(registeredClientId, principalId);
         if (deleteCount != 1) {
             throw new EmptyResultDataAccessException("none exist consent",1);
         }
@@ -93,7 +89,8 @@ public class JpaConsentService implements OAuth2AuthorizationConsentService {
     public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
         Assert.notNull(registeredClientId, "registeredClientId cannot be null");
         Assert.notNull(principalName, "principalName cannot be null");
-        OAuth2AuthorizationConsentEntity consentEntity = consentRepository.findByClientIdAndResourceOwnerId(registeredClientId, principalName);
+        OAuth2AuthorizationConsentEntity consentEntity = repositoryHolder.getRepository(ConsentRepository.class)
+                .findByClientIdAndResourceOwnerId(registeredClientId, principalName);
         return Optional.ofNullable(consentEntity).map(OAuth2AuthorizationConsentEntity::toObject).orElse(null);
     }
 

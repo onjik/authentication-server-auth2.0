@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,6 +49,14 @@ public class AccountEntity {
             joinColumns = @JoinColumn(name = "account_id",nullable = false),
             inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false))
     private Set<RoleEntity> roleEntities = new HashSet<>();
+
+    @OneToMany(mappedBy = "accountEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AuthenticationEntity> authentications = new ArrayList<>();
+
+    public void addAuthentication(AuthenticationEntity authenticationEntity) {
+        authenticationEntity.setAccountEntity(this);
+        getAuthentications().add(authenticationEntity);
+    }
 
 
     public void addRole(RoleEntity roleEntity) {

@@ -11,6 +11,7 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.A
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.RefreshTokenEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.authentication.AccountEntity;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.authentication.PasswordAuthenticationEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import jakarta.persistence.EntityManager;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -67,6 +68,10 @@ public class TestEntityFactory {
 
     public static AccountEntity getAccountEntity(ResourceOwnerEntity resourceOwnerEntity) {
         return AccountEntity.builder("test@gmail.com", resourceOwnerEntity).build();
+    }
+
+    public static PasswordAuthenticationEntity getPasswordAuthenticationEntity(AccountEntity accountEntity) {
+        return PasswordAuthenticationEntity.builder(accountEntity, "password").build();
     }
 
     public static ResourceOwnerEntity getResourceOwnerEntity() {

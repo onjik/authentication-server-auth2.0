@@ -18,7 +18,7 @@ import lombok.Setter;
 @DiscriminatorColumn(name = "authentication_type")
 @Getter
 @Setter
-@EqualsAndHashCode(of = {"accountEntity"})
+@EqualsAndHashCode(of = {"id"})
 @NoArgsConstructor
 public abstract class AuthenticationEntity {
 
