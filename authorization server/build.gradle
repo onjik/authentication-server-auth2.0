@@ -36,8 +36,6 @@ dependencies {
 	DATA ACCESS
 	 */
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.session:spring-session-data-redis:3.1.1'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.5.0'
 	runtimeOnly 'org.postgresql:postgresql'
 
