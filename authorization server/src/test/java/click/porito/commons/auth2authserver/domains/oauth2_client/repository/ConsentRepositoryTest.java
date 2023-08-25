@@ -6,7 +6,6 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static test_util.TestEntityFactory.*;
 
 @ActiveProfiles("test")
@@ -45,15 +45,13 @@ class ConsentRepositoryTest {
         em.persist(method);
         AuthorizationGrantTypeEntity grantType = getAuthorizationGrantTypeEntity();
         em.persist(grantType);
-        RoleEntity role = getRoleEntity();
-        em.persist(role);
 
         //client
         this.clientEntity = getClientEntity(scope, method, grantType);
         em.persist(clientEntity);
 
         //resourceOwner
-        this.resourceOwner = getResourceOwnerEntity(role);
+        this.resourceOwner = getResourceOwnerEntity();
         em.persist(resourceOwner);
 
         //consent

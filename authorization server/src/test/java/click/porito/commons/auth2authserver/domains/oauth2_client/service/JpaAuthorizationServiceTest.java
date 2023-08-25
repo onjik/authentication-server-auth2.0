@@ -11,7 +11,6 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.repository.Com
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.OAuth2AuthorizationRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
-import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -68,15 +67,13 @@ class JpaAuthorizationServiceTest {
         ScopeEntity scopeEntity = getScopeEntity();
         ClientAuthenticationMethodEntity method = getClientAuthenticationMethodEntity();
         AuthorizationGrantTypeEntity grantType = getAuthorizationGrantTypeEntity();
-        RoleEntity role = getRoleEntity();
         em.persist(scopeEntity);
         em.persist(method);
         em.persist(grantType);
-        em.persist(role);
 
         ClientEntity client = getClientEntity(scopeEntity, method, grantType);
         em.persist(client);
-        ResourceOwnerEntity resourceOwner = getResourceOwnerEntity(role);
+        ResourceOwnerEntity resourceOwner = getResourceOwnerEntity();
         em.persist(resourceOwner);
         this.authorization = getOAuth2AuthorizationEntity(client, resourceOwner, grantType);
     }

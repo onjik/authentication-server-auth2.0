@@ -69,18 +69,13 @@ public class TestEntityFactory {
         return AccountEntity.builder("test@gmail.com", resourceOwnerEntity).build();
     }
 
-    public static ResourceOwnerEntity getResourceOwnerEntity(RoleEntity roleEntity) {
+    public static ResourceOwnerEntity getResourceOwnerEntity() {
         //resource owner
-        ResourceOwnerEntity resourceOwner = new ResourceOwnerEntity("name", ResourceOwnerEntity.Gender.MAN);
-        resourceOwner.addRole(roleEntity);
-        return resourceOwner;
+        return new ResourceOwnerEntity("name", ResourceOwnerEntity.Gender.MAN);
     }
 
     public static ResourceOwnerEntity getSavedResourceOwnerEntity(EntityManager em) {
-        RoleEntity role = getRoleEntity();
-        em.persist(role);
-
-        ResourceOwnerEntity resourceOwner = getResourceOwnerEntity(role);
+        ResourceOwnerEntity resourceOwner = getResourceOwnerEntity();
         em.persist(resourceOwner);
         return resourceOwner;
     }
@@ -109,17 +104,15 @@ public class TestEntityFactory {
         ScopeEntity scope = getScopeEntity();
         ClientAuthenticationMethodEntity method = getClientAuthenticationMethodEntity();
         AuthorizationGrantTypeEntity grantType = getAuthorizationGrantTypeEntity();
-        RoleEntity role = getRoleEntity();
 
         em.persist(scope);
         em.persist(method);
         em.persist(grantType);
-        em.persist(role);
 
         ClientEntity clientEntity = getClientEntity(scope, method, grantType);
         em.persist(clientEntity);
 
-        ResourceOwnerEntity resourceOwner = getResourceOwnerEntity(role);
+        ResourceOwnerEntity resourceOwner = getResourceOwnerEntity();
         em.persist(resourceOwner);
 
         OAuth2AuthorizationEntity authorization = getOAuth2AuthorizationEntity(clientEntity, resourceOwner, grantType);

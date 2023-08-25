@@ -50,17 +50,15 @@ class OAuth2AuthorizationRepositoryTest {
     void staticDataSetUp(){
         //static data
         scope = getScopeEntity();
-        roleEntity = getRoleEntity();
         method = getClientAuthenticationMethodEntity();
         grantType = getAuthorizationGrantTypeEntity();
         em.persist(scope);
-        em.persist(roleEntity);
         em.persist(method);
         em.persist(grantType);
 
         client = getClientEntity(scope, method, grantType);
         em.persist(client);
-        resourceOwner = getResourceOwnerEntity(roleEntity);
+        resourceOwner = getResourceOwnerEntity();
         em.persist(resourceOwner);
         authorization = getOAuth2AuthorizationEntity(client, resourceOwner, grantType);
         em.persist(authorization);

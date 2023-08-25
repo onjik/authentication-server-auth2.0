@@ -67,7 +67,7 @@ class JpaConsentServiceTest {
         em.persist(grantType);
         em.persist(method);
 
-        ResourceOwnerEntity resourceOwner = getResourceOwnerEntity(role);
+        ResourceOwnerEntity resourceOwner = getResourceOwnerEntity();
         em.persist(resourceOwner);
         ClientEntity client = getClientEntity(scope, method, grantType);
         em.persist(client);
