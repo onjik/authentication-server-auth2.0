@@ -17,10 +17,6 @@ import java.time.Instant;
 public class AccountEntity {
 
     @Id
-    @OneToOne
-    @JoinColumn(name = "resource_owner_id", nullable = false)
-    private ResourceOwnerEntity resourceOwner;
-
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
@@ -35,6 +31,10 @@ public class AccountEntity {
 
     @Column(name = "is_disabled")
     private boolean isDisabled;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "resource_owner_id", nullable = false)
+    private ResourceOwnerEntity resourceOwner;
 
     public static AccountEntityBuilder builder(String email, ResourceOwnerEntity resourceOwner) {
         return new AccountEntityBuilder()

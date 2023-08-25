@@ -71,12 +71,12 @@ CREATE TABLE resource_owner
 
 CREATE TABLE account
 (
-    resource_owner_id varchar(50) PRIMARY KEY REFERENCES resource_owner(id),
-    email varchar(255) NOT NULL ,
-    is_email_verified bool DEFAULT FALSE,
-    is_locked bool DEFAULT FALSE,
-    is_disabled bool DEFAULT FALSE,
-    expires_at timestamp DEFAULT NULL,
+    email             varchar(255) PRIMARY KEY,
+    is_email_verified bool      DEFAULT FALSE,
+    is_locked         bool      DEFAULT FALSE,
+    is_disabled       bool      DEFAULT FALSE,
+    expires_at        timestamp DEFAULT NULL,
+    resource_owner_id varchar(50) NOT NULL REFERENCES resource_owner (id),
     CONSTRAINT email_unique UNIQUE (email)
 );
 
@@ -84,10 +84,9 @@ CREATE TABLE authentication
 (
     id                  bigserial PRIMARY KEY,
     authentication_type varchar(255) NOT NULL,
-    account_id          varchar(255) NOT NULL REFERENCES account (resource_owner_id),
-    UNIQUE (authentication_type, account_id)
+    email               varchar(255) NOT NULL REFERENCES account (email),
+    UNIQUE (authentication_type, email)
 );
-
 
 CREATE TABLE password
 (
