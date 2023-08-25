@@ -1,4 +1,4 @@
-package click.porito.commons.auth2authserver.security;
+package click.porito.commons.auth2authserver.domains.security;
 
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;

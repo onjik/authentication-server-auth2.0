@@ -1,4 +1,4 @@
-package click.porito.commons.auth2authserver.global.exception;
+package click.porito.commons.auth2authserver.common.exception;
 
 import lombok.Getter;
 

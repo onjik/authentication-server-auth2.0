@@ -1,4 +1,4 @@
-package click.porito.commons.auth2authserver.util;
+package click.porito.commons.auth2authserver.domains.resource_owner.util;
 
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import jakarta.persistence.AttributeConverter;

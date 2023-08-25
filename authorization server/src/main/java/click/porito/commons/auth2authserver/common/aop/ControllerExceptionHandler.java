@@ -1,8 +1,8 @@
-package click.porito.commons.auth2authserver.global.aop;
+package click.porito.commons.auth2authserver.common.aop;
 
-import click.porito.commons.auth2authserver.global.exception.ErrorResponseBody;
-import click.porito.commons.auth2authserver.global.exception.InternalServerException;
-import click.porito.commons.auth2authserver.infra.dev_notifier.DeveloperNotifier;
+import click.porito.commons.auth2authserver.common.exception.ErrorResponseBody;
+import click.porito.commons.auth2authserver.common.exception.InternalServerException;
+import click.porito.commons.auth2authserver.common.infra.dev_notifier.DeveloperNotifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;

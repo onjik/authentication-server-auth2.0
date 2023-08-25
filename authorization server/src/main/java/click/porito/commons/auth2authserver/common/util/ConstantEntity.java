@@ -1,4 +1,4 @@
-package click.porito.commons.auth2authserver.global.util;
+package click.porito.commons.auth2authserver.common.util;
 
 import java.lang.annotation.*;
 

@@ -1,7 +1,7 @@
 package click.porito.commons.auth2authserver.domains.resource_owner.entity;
 
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
-import click.porito.commons.auth2authserver.util.GenderConverter;
+import click.porito.commons.auth2authserver.domains.resource_owner.util.GenderConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;

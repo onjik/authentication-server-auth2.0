@@ -1,4 +1,4 @@
-package click.porito.commons.auth2authserver.infra.dev_notifier;
+package click.porito.commons.auth2authserver.common.infra.dev_notifier;
 
 import org.springframework.stereotype.Component;
 

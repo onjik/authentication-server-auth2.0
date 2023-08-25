@@ -1,4 +1,4 @@
-package click.porito.commons.auth2authserver.security;
+package click.porito.commons.auth2authserver.domains.security;
 
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
