@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Entity @Table(name = "authentication",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"email", "authentication_type"})
+                @UniqueConstraint(columnNames = {"account_id", "authentication_type"})
         }
 )
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -27,7 +27,7 @@ public abstract class AuthenticationEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "email", nullable = false)
+    @JoinColumn(name = "account_id", nullable = false)
     protected AccountEntity accountEntity;
 
     public AuthenticationEntity(AccountEntity accountEntity) {

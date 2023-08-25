@@ -1,10 +1,13 @@
 package click.porito.commons.auth2authserver.domains.resource_owner.entity.authentication;
 
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
+import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 계정 엔티티입니다. 계정의 존재를 대변합니다.
@@ -16,7 +19,10 @@ import java.time.Instant;
 @NoArgsConstructor
 public class AccountEntity {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
@@ -35,6 +41,17 @@ public class AccountEntity {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_owner_id", nullable = false)
     private ResourceOwnerEntity resourceOwner;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "account_role",
+            joinColumns = @JoinColumn(name = "account_id",nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false))
+    private Set<RoleEntity> roleEntities = new HashSet<>();
+
+
+    public void addRole(RoleEntity roleEntity) {
+        getRoleEntities().add(roleEntity);
+    }
 
     public static AccountEntityBuilder builder(String email, ResourceOwnerEntity resourceOwner) {
         return new AccountEntityBuilder()

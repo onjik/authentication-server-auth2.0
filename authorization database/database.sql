@@ -71,21 +71,23 @@ CREATE TABLE resource_owner
 
 CREATE TABLE account
 (
-    email             varchar(255) PRIMARY KEY,
+    id                bigserial PRIMARY KEY,
+    email             varchar(255) NOT NULL,
     is_email_verified bool      DEFAULT FALSE,
     is_locked         bool      DEFAULT FALSE,
     is_disabled       bool      DEFAULT FALSE,
     expires_at        timestamp DEFAULT NULL,
-    resource_owner_id varchar(50) NOT NULL REFERENCES resource_owner (id),
-    CONSTRAINT email_unique UNIQUE (email)
+    resource_owner_id varchar(50)  NOT NULL REFERENCES resource_owner (id),
+    CONSTRAINT email_unique UNIQUE (email) ,
+    CONSTRAINT one_account_per_resource_owner UNIQUE (resource_owner_id)
 );
 
 CREATE TABLE authentication
 (
     id                  bigserial PRIMARY KEY,
     authentication_type varchar(255) NOT NULL,
-    email               varchar(255) NOT NULL REFERENCES account (email),
-    UNIQUE (authentication_type, email)
+    account_id          bigint REFERENCES account (id),
+    UNIQUE (authentication_type, account_id)
 );
 
 CREATE TABLE password
@@ -161,11 +163,11 @@ CREATE TABLE oidc_id_token
  M:N 관계를 표현하기 위한 테이블들
  */
 
-CREATE TABLE resource_owner_role
+CREATE TABLE account_role
 (
     role_id           bigint REFERENCES role (id),
-    resource_owner_id varchar(50) REFERENCES resource_owner (id),
-    PRIMARY KEY (role_id, resource_owner_id)
+    account_id bigint REFERENCES account (id),
+    PRIMARY KEY (role_id, account_id)
 );
 
 CREATE TABLE authorization_consent_role
