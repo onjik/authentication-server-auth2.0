@@ -1,10 +1,15 @@
 package click.porito.commons.auth2authserver.domains.security;
 
+import click.porito.commons.auth2authserver.common.util.RepositoryHolder;
+import click.porito.commons.auth2authserver.domains.oauth2_client.service.JpaAuthorizationService;
+import click.porito.commons.auth2authserver.domains.oauth2_client.service.JpaConsentService;
+import click.porito.commons.auth2authserver.domains.oauth2_client.service.JpaRegisteredClientService;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,27 +17,17 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationContext;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationValidator;
-import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
@@ -46,12 +41,13 @@ import java.util.function.Consumer;
 
 @Configuration
 @Profile({"local", "test"})
-@EnableWebSecurity
-public class LocalTestSecurityConfig implements SecurityConfig {
+@RequiredArgsConstructor
+public class Auth2ServerConfig {
+
+    private final RepositoryHolder repositoryHolder;
 
     //OAuth2 Authorization Endpoints 설정
     //로컬이나 테스트 용도로, redirect_uri 를 localhost 가 가능하도록 설정
-    @Override
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -89,60 +85,21 @@ public class LocalTestSecurityConfig implements SecurityConfig {
     }
 
 
-    // authorizedRequest 권한 체크 필터
-    @Override
-    @Bean
-    @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().authenticated()
-                )
-                // Form login handles the redirect to the login page from the
-                // authorization server filter chain
-                .formLogin(Customizer.withDefaults());
-
-        return http.build();
-    }
-
-    // 인증할 사용자를 검색하기 위한 UserDetailsService
-    @Override
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails userDetails = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(userDetails);
-    }
-
     // client 를 관리하기 위한 RegisteredClientRepository
-    @Override
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("messaging-client")
-                .clientSecret("{noop}secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
-                .redirectUri("http://127.0.0.1:8080/authorized")
-                .scope(OidcScopes.OPENID)
-                .scope(OidcScopes.PROFILE)
-                .scope("message.read")
-                .scope("message.write")
-                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
-                .build();
+        return new JpaRegisteredClientService(repositoryHolder);
+    }
 
-        return new InMemoryRegisteredClientRepository(registeredClient);
+    public OAuth2AuthorizationService oAuth2AuthorizationService() {
+        return new JpaAuthorizationService(repositoryHolder);
+    }
+
+    public JpaConsentService jpaConsentService() {
+        return new JpaConsentService(repositoryHolder);
     }
 
     // access tokens 를 서명하기 위한 JwtDecoder
-    @Override
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
         KeyPair keyPair = generateRsaKey();
@@ -157,38 +114,17 @@ public class LocalTestSecurityConfig implements SecurityConfig {
     }
 
     // 서명된 access token 을 해독하기 위한 JwtDecoder
-    @Override
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
     }
 
     // authorization server 의 설정을 위한 AuthorizationServerSettings
-    @Override
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
     }
 
-
-    /**
-     * 테스트를 위한, Authorization validator
-     */
-    static class LocalHostAllowedValidator extends RegexBasedRedirectUriValidator {
-        @Override
-        public void accept(OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext) {
-            OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication = (OAuth2AuthorizationCodeRequestAuthenticationToken) authenticationContext.getAuthentication();
-            String redirectUri = authorizationCodeRequestAuthentication.getRedirectUri();
-
-            // 로컬 환경 테스트를 위해, localhost 를 허용한다.
-            if (redirectUri.matches("^(https?://)?localhost(.*)$")) {
-                return;
-            }
-
-            // 그외의 경우에는 정규식을 기반으로 검증한다.
-            super.accept(authenticationContext);
-        }
-    }
 
     /**
      * @return {@code OAuth2AuthorizationCodeRequestAuthenticationProvider}를 찾아서 authenticationValidator 를 설정하는 컨슈머
@@ -210,6 +146,25 @@ public class LocalTestSecurityConfig implements SecurityConfig {
                 }
             });
         };
+    }
+
+    /**
+     * 테스트를 위한, Authorization validator
+     */
+    static class LocalHostAllowedValidator extends RegexBasedRedirectUriValidator {
+        @Override
+        public void accept(OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext) {
+            OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication = (OAuth2AuthorizationCodeRequestAuthenticationToken) authenticationContext.getAuthentication();
+            String redirectUri = authorizationCodeRequestAuthentication.getRedirectUri();
+
+            // 로컬 환경 테스트를 위해, localhost 를 허용한다.
+            if (redirectUri.matches("^(https?://)?localhost(.*)$")) {
+                return;
+            }
+
+            // 그외의 경우에는 정규식을 기반으로 검증한다.
+            super.accept(authenticationContext);
+        }
     }
 
 

@@ -15,7 +15,6 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.repository.OAu
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.repository.ResourceOwnerRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -30,28 +29,39 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-@RequiredArgsConstructor
 public class JpaAuthorizationService implements OAuth2AuthorizationService {
 
-    private final RepositoryHolder repositoryHolder;
+    private final OAuth2AuthorizationRepository authorizationRepository;
+    private final ClientRepository clientRepository;
+    private final ScopeRepository scopeRepository;
+    private final ResourceOwnerRepository resourceOwnerRepository;
+    private final AuthorizationGrantTypeRepository authorizationGrantTypeRepository;
+
+    public JpaAuthorizationService(RepositoryHolder repositoryHolder) {
+        this.authorizationRepository = repositoryHolder.getRepository(OAuth2AuthorizationRepository.class);
+        this.clientRepository = repositoryHolder.getRepository(ClientRepository.class);
+        this.scopeRepository = repositoryHolder.getRepository(ScopeRepository.class);
+        this.resourceOwnerRepository = repositoryHolder.getRepository(ResourceOwnerRepository.class);
+        this.authorizationGrantTypeRepository = repositoryHolder.getRepository(AuthorizationGrantTypeRepository.class);
+    }
 
     @Override
     public void save(OAuth2Authorization authorization) {
         Assert.notNull(authorization,"authorization must not be null");
         OAuth2AuthorizationEntity oAuth2AuthorizationEntity = toEntity(authorization);
-        repositoryHolder.getRepository(OAuth2AuthorizationRepository.class).save(oAuth2AuthorizationEntity);
+        authorizationRepository.save(oAuth2AuthorizationEntity);
     }
 
     @Override
     public void remove(OAuth2Authorization authorization) {
         Assert.notNull(authorization,"authorization must not be null");
-        repositoryHolder.getRepository(OAuth2AuthorizationRepository.class).deleteById(authorization.getId());
+        authorizationRepository.deleteById(authorization.getId());
     }
 
     @Override
     public OAuth2Authorization findById(String id) {
         Assert.hasText(id,"id must not be empty");
-        return repositoryHolder.getRepository(OAuth2AuthorizationRepository.class).findById(id)
+        return authorizationRepository.findById(id)
                 .map(OAuth2AuthorizationEntity::toObject)
                 .orElse(null);
     }
@@ -59,7 +69,6 @@ public class JpaAuthorizationService implements OAuth2AuthorizationService {
     @Override
     public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
         Assert.hasText(token,"token must not be empty");
-        OAuth2AuthorizationRepository authorizationRepository = repositoryHolder.getRepository(OAuth2AuthorizationRepository.class);
         Optional<OAuth2AuthorizationEntity> result;
         if (tokenType == null) {
             result = authorizationRepository.findByTokensValue(token).stream()
@@ -83,17 +92,17 @@ public class JpaAuthorizationService implements OAuth2AuthorizationService {
     private OAuth2AuthorizationEntity toEntity(OAuth2Authorization authorization) {
 
 
-        ClientEntity clientEntity = repositoryHolder.getRepository(ClientRepository.class).findById(authorization.getRegisteredClientId())
+        ClientEntity clientEntity = clientRepository.findById(authorization.getRegisteredClientId())
                 .orElseThrow(() -> new DataRetrievalFailureException("client not found"));
 
 
-        ResourceOwnerEntity resourceOwner = repositoryHolder.getRepository(ResourceOwnerRepository.class).findById(authorization.getPrincipalName())
+        ResourceOwnerEntity resourceOwner = resourceOwnerRepository.findById(authorization.getPrincipalName())
                 .orElseThrow(() -> new DataRetrievalFailureException("resource owner not found"));
 
-        AuthorizationGrantTypeEntity grantType = repositoryHolder.getRepository(AuthorizationGrantTypeRepository.class).findByName(authorization.getAuthorizationGrantType().getValue())
+        AuthorizationGrantTypeEntity grantType = authorizationGrantTypeRepository.findByName(authorization.getAuthorizationGrantType().getValue())
                 .orElseThrow(() -> new DataRetrievalFailureException("grant type not found"));
 
-        Set<ScopeEntity> scopes = repositoryHolder.getRepository(ScopeRepository.class).findByNameIgnoreCaseIn(authorization.getAuthorizedScopes());
+        Set<ScopeEntity> scopes = scopeRepository.findByNameIgnoreCaseIn(authorization.getAuthorizedScopes());
         if (scopes.size() != authorization.getAuthorizedScopes().size()) {
             throw new DataRetrievalFailureException("scope not found");
         }

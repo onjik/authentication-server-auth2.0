@@ -1,15 +1,13 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
+import click.porito.commons.auth2authserver.common.util.RepositoryHolder;
+import click.porito.commons.auth2authserver.common.util.RepositoryHolderImpl;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.OAuth2AuthorizationEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.token.AccessTokenEntity;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthorizationGrantTypeRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.CommonTokenRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.OAuth2AuthorizationRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -43,16 +42,9 @@ class JpaAuthorizationServiceTest {
     private EntityManager em;
 
     @Autowired
-    private ScopeRepository scopeRepository;
+    ApplicationContext applicationContext;
 
-    @Autowired
-    private CommonTokenRepository commonTokenRepository;
-
-    @Autowired
-    private OAuth2AuthorizationRepository oAuth2AuthorizationRepository;
-
-    @Autowired
-    private AuthorizationGrantTypeRepository authorizationGrantTypeRepository;
+    private RepositoryHolder repositoryHolder;
 
 
     private JpaAuthorizationService authorizationService;
@@ -63,7 +55,12 @@ class JpaAuthorizationServiceTest {
 
     @BeforeEach
     void setUp() {
-        authorizationService = new JpaAuthorizationService(em,scopeRepository,oAuth2AuthorizationRepository,authorizationGrantTypeRepository);
+        RepositoryHolderImpl holder = new RepositoryHolderImpl();
+        holder.setApplicationContext(applicationContext);
+        this.repositoryHolder = holder;
+
+
+        authorizationService = new JpaAuthorizationService(repositoryHolder);
         ScopeEntity scopeEntity = getScopeEntity();
         ClientAuthenticationMethodEntity method = getClientAuthenticationMethodEntity();
         AuthorizationGrantTypeEntity grantType = getAuthorizationGrantTypeEntity();

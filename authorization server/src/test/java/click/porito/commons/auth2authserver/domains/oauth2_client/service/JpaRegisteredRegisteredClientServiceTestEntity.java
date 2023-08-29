@@ -1,14 +1,13 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
+import click.porito.commons.auth2authserver.common.util.RepositoryHolder;
+import click.porito.commons.auth2authserver.common.util.RepositoryHolderImpl;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.RedirectUriEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthenticationMethodRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthorizationGrantTypeRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
@@ -36,26 +36,23 @@ import static test_util.TestEntityFactory.*;
 class JpaRegisteredRegisteredClientServiceTestEntity {
 
     @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private ScopeRepository scopeRepository;
-
-    @Autowired
-    private AuthenticationMethodRepository authenticationMethodRepository;
-
-    @Autowired
-    private AuthorizationGrantTypeRepository authorizationGrantTypeRepository;
-    @Autowired
     private EntityManager em;
 
+    @Autowired
+    ApplicationContext applicationContext;
+
+    RepositoryHolder repositoryHolder;
 
     private RegisteredClientRepository jpaRegisteredClientService;
     private ClientEntity clientEntity;
 
     @BeforeEach
     void setUp() {
-        jpaRegisteredClientService = new JpaRegisteredClientService(clientRepository, scopeRepository, authenticationMethodRepository, authorizationGrantTypeRepository);
+        RepositoryHolderImpl holder = new RepositoryHolderImpl();
+        holder.setApplicationContext(applicationContext);
+        repositoryHolder = holder;
+
+        jpaRegisteredClientService = new JpaRegisteredClientService(repositoryHolder);
 
         //entity 초기화
         ScopeEntity scope = getScopeEntity();
@@ -80,7 +77,7 @@ class JpaRegisteredRegisteredClientServiceTestEntity {
         jpaRegisteredClientService.save(registeredClient);
 
         //then
-        Optional<ClientEntity> savedClient = clientRepository.findById(registeredClient.getId());
+        Optional<ClientEntity> savedClient = repositoryHolder.getRepository(ClientRepository.class).findById(registeredClient.getId());
         ClientEntity clientEntity = savedClient.orElseGet(Assertions::fail);
         assertTrue(clientEntity.getRedirectUris().stream()
                 .map(RedirectUriEntity::getUri)

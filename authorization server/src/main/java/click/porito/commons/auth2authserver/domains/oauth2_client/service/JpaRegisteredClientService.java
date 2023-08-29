@@ -10,7 +10,6 @@ import click.porito.commons.auth2authserver.domains.oauth2_client.repository.Aut
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.AuthorizationGrantTypeRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -25,22 +24,31 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 public class JpaRegisteredClientService implements RegisteredClientRepository {
 
-    private final RepositoryHolder repositoryHolder;
+    private final ClientRepository clientRepository;
+    private final ScopeRepository scopeRepository;
+    private final AuthenticationMethodRepository authenticationMethodRepository;
+    private final AuthorizationGrantTypeRepository authorizationGrantTypeRepository;
+
+    public JpaRegisteredClientService(RepositoryHolder repositoryHolder) {
+        this.clientRepository = repositoryHolder.getRepository(ClientRepository.class);
+        this.scopeRepository = repositoryHolder.getRepository(ScopeRepository.class);
+        this.authenticationMethodRepository = repositoryHolder.getRepository(AuthenticationMethodRepository.class);
+        this.authorizationGrantTypeRepository = repositoryHolder.getRepository(AuthorizationGrantTypeRepository.class);
+    }
 
     @Override
     public void save(RegisteredClient registeredClient) {
         Assert.notNull(registeredClient, "registeredClient cannot be null");
         ClientEntity clientEntity = toEntity(registeredClient); //read only
-        repositoryHolder.getRepository(ClientRepository.class).save(clientEntity); // write
+        clientRepository.save(clientEntity); // write
     }
 
     @Nullable
     @Override
     public RegisteredClient findById(String id) {
-        ClientEntity clientEntity = repositoryHolder.getRepository(ClientRepository.class)
+        ClientEntity clientEntity = clientRepository
                 .findById(id).orElse(null);
         if (clientEntity == null) return null;
         return clientEntity.toObject();
@@ -49,7 +57,7 @@ public class JpaRegisteredClientService implements RegisteredClientRepository {
     @Nullable
     @Override
     public RegisteredClient findByClientId(String clientId) {
-        ClientEntity clientEntity = repositoryHolder.getRepository(ClientRepository.class)
+        ClientEntity clientEntity = clientRepository
                 .findByClientId(clientId).orElse(null);
         if (clientEntity == null) return null;
         return clientEntity.toObject();
@@ -84,7 +92,7 @@ public class JpaRegisteredClientService implements RegisteredClientRepository {
         // scopeEntities
         Set<ScopeEntity> scopeEntities = loadEntity(
                 registeredClient.getScopes(),
-                repositoryHolder.getRepository(ScopeRepository.class)::findByNameIgnoreCaseIn,
+                scopeRepository::findByNameIgnoreCaseIn,
                 (scope, scopeEntity) -> scope.equals(scopeEntity.getName())
         );
         clientEntity.getScopes().addAll(scopeEntities);
@@ -95,7 +103,7 @@ public class JpaRegisteredClientService implements RegisteredClientRepository {
                 .collect(Collectors.toSet());
         Set<ClientAuthenticationMethodEntity> methodEntities = loadEntity(
                 methodValues,
-                repositoryHolder.getRepository(AuthenticationMethodRepository.class)::findByNameIn,
+                authenticationMethodRepository::findByNameIn,
                 (method, methodEntity) -> method.equals(methodEntity.getName())
         );
         clientEntity.getClientAuthenticationMethods().addAll(methodEntities);
@@ -106,7 +114,7 @@ public class JpaRegisteredClientService implements RegisteredClientRepository {
                 .collect(Collectors.toSet());
         Set<AuthorizationGrantTypeEntity> grantTypeEntities = loadEntity(
                 grantTypeValues,
-                repositoryHolder.getRepository(AuthorizationGrantTypeRepository.class)::findByNameIn,
+                authorizationGrantTypeRepository::findByNameIn,
                 (grantType, grantTypeEntity) -> grantType.equals(grantTypeEntity.getName())
         );
         clientEntity.getAuthorizationGrantTypes().addAll(grantTypeEntities);

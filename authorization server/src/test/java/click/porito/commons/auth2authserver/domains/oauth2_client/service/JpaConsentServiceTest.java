@@ -1,22 +1,21 @@
 package click.porito.commons.auth2authserver.domains.oauth2_client.service;
 
+import click.porito.commons.auth2authserver.common.util.RepositoryHolder;
+import click.porito.commons.auth2authserver.common.util.RepositoryHolderImpl;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.ClientEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.OAuth2AuthorizationConsentEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.AuthorizationGrantTypeEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ClientAuthenticationMethodEntity;
 import click.porito.commons.auth2authserver.domains.oauth2_client.entity.static_entity.ScopeEntity;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ClientRepository;
 import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ConsentRepository;
-import click.porito.commons.auth2authserver.domains.oauth2_client.repository.ScopeRepository;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.ResourceOwnerEntity;
 import click.porito.commons.auth2authserver.domains.resource_owner.entity.static_entity.RoleEntity;
-import click.porito.commons.auth2authserver.domains.resource_owner.repository.ResourceOwnerRepository;
-import click.porito.commons.auth2authserver.domains.resource_owner.repository.RoleRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -38,15 +37,9 @@ class JpaConsentServiceTest {
     @Autowired
     EntityManager em;
     @Autowired
-    ConsentRepository consentRepository;
-    @Autowired
-    ClientRepository clientRepository;
-    @Autowired
-    ResourceOwnerRepository resourceOwnerRepository;
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
-    ScopeRepository scopeRepository;
+    ApplicationContext applicationContext;
+
+    RepositoryHolder repositoryHolder;
 
 
     JpaConsentService jpaConsentService;
@@ -55,7 +48,10 @@ class JpaConsentServiceTest {
 
     @BeforeEach
     void setUp() {
-        jpaConsentService = new JpaConsentService(consentRepository,clientRepository,resourceOwnerRepository,roleRepository,scopeRepository);
+        RepositoryHolderImpl holder = new RepositoryHolderImpl();
+        holder.setApplicationContext(applicationContext);
+        repositoryHolder = holder;
+        jpaConsentService = new JpaConsentService(holder);
 
         //given
         RoleEntity role = getRoleEntity();
@@ -88,7 +84,7 @@ class JpaConsentServiceTest {
             //then
             String clientId = consentEntity.getClient().getId();
             String resourceOwnerId = consentEntity.getResourceOwner().getId();
-            OAuth2AuthorizationConsentEntity findedEntity = consentRepository.findByClientIdAndResourceOwnerId(clientId, resourceOwnerId);
+            OAuth2AuthorizationConsentEntity findedEntity = repositoryHolder.getRepository(ConsentRepository.class).findByClientIdAndResourceOwnerId(clientId, resourceOwnerId);
             assertEquals(consentEntity.getScopes(), findedEntity.getScopes());
             assertEquals(consentEntity.getRoles(), findedEntity.getRoles());
             assertEquals(consentEntity.getResourceOwner(), findedEntity.getResourceOwner());
@@ -157,7 +153,7 @@ class JpaConsentServiceTest {
             //then
             String clientId = consentEntity.getClient().getId();
             String resourceOwnerId = consentEntity.getResourceOwner().getId();
-            OAuth2AuthorizationConsentEntity findedEntity = consentRepository.findByClientIdAndResourceOwnerId(clientId, resourceOwnerId);
+            OAuth2AuthorizationConsentEntity findedEntity = repositoryHolder.getRepository(ConsentRepository.class).findByClientIdAndResourceOwnerId(clientId, resourceOwnerId);
             assertEquals(null, findedEntity);
         }
 
